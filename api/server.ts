@@ -29,7 +29,8 @@ client.on('messageReactionAdd', async (reaction: MessageReaction) => {
     const guild = reaction.message.guild;
     const author = guild && guild.member(reaction.message.author);
     const displayName = author && author.displayName;
-    hook.send(`${reaction.message.content} by ${displayName || reaction.message.author.username}`);
+
+    hook.send(`${reaction.message.content}\nby ${displayName || reaction.message.author.username}`);
   }
 });
 
