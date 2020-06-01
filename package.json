@@ -7,7 +7,7 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
-    "start": "ts-node api.server.ts",
+    "start": "ts-node api/server.ts",
     "lint": "eslint --ext .ts --ignore-path .gitignore .",
     "lint:fix": "npm run --fix"
   },

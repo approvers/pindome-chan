@@ -7,14 +7,25 @@ const hook = new WebhookClient(
   process.env.DISCORD_WEBHOOK_ID || '',
   process.env.DISCORD_WEBHOOK_TOKEN || '',
 );
-const client = new Client();
+
+const client = new Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
 
 client.on('ready', () => {
-  console.log('I got ready.');
+  console.log('ピン留めちゃん、準備完了ですっ！');
 });
 
-client.on('messageReactionAdd', (reaction: MessageReaction) => {
-  if (reaction.emoji instanceof ReactionEmoji && reaction.emoji.identifier === 'pushpin') {
+client.on('messageReactionAdd', async (reaction: MessageReaction) => {
+  if (reaction.partial) {
+    try {
+      await reaction.fetch();
+    } catch (error) {
+      console.log('メッセージが読めなかった……: ', error);
+      return;
+    }
+  }
+
+  // pushpin
+  if (reaction.emoji.identifier === '%F0%9F%93%8C') {
     hook.send(reaction.message.content);
   }
 });
