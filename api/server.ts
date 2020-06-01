@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { Client, WebhookClient, MessageReaction, ReactionEmoji } from 'discord.js';
+import { Client, WebhookClient, MessageReaction } from 'discord.js';
 
 dotenv.config();
 
@@ -26,7 +26,10 @@ client.on('messageReactionAdd', async (reaction: MessageReaction) => {
 
   // pushpin
   if (reaction.emoji.identifier === '%F0%9F%93%8C') {
-    hook.send(reaction.message.content);
+    const guild = reaction.message.guild;
+    const author = guild && guild.member(reaction.message.author);
+    const displayName = author && author.displayName;
+    hook.send(`${reaction.message.content} by ${displayName || reaction.message.author.username}`);
   }
 });
 
