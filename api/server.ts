@@ -30,7 +30,12 @@ client.on('messageReactionAdd', async (reaction: MessageReaction) => {
     const author = guild && guild.member(reaction.message.author);
     const displayName = author && author.displayName;
 
-    hook.send(`${reaction.message.content}\nby ${displayName || reaction.message.author.username}`);
+    const attachements = reaction.message.attachments.values();
+
+    hook.send(
+      `${reaction.message.content}\nby ${displayName || reaction.message.author.username}`,
+      [...attachements],
+    );
   }
 });
 
