@@ -33,7 +33,7 @@ client.on('messageReactionAdd', async (reaction: MessageReaction) => {
     const attachements = reaction.message.attachments.values();
 
     if (0 < reaction.message.embeds.length) {
-      hook.send(reaction.message.embeds, [...attachements]);
+      hook.send(reaction.message.embeds);
     } else {
       hook.send(
         `${reaction.message.content}\nby ${displayName || reaction.message.author.username}`,
