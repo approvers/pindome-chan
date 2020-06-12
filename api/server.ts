@@ -32,10 +32,14 @@ client.on('messageReactionAdd', async (reaction: MessageReaction) => {
 
     const attachements = reaction.message.attachments.values();
 
-    hook.send(
-      `${reaction.message.content}\nby ${displayName || reaction.message.author.username}`,
-      [...attachements],
-    );
+    if (0 < reaction.message.embeds.length) {
+      hook.send(reaction.message.embeds, [...attachements]);
+    } else {
+      hook.send(
+        `${reaction.message.content}\nby ${displayName || reaction.message.author.username}`,
+        [...attachements],
+      );
+    }
   }
 });
 
