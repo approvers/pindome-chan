@@ -36,6 +36,12 @@ client.on('messageReactionAdd', async (reaction: MessageReaction, user: User | P
   const whoPinned = `ピンしたのはね、${nickname || user.username} だよ`;
 
   const pushpin = '%F0%9F%93%8C';
+  await sendMessage(reaction, pushpin, whoPinned);
+});
+
+client.login(process.env.DISCORD_TOKEN);
+
+async function sendMessage(reaction: MessageReaction, pushpin: string, whoPinned: string) {
   if (reaction.emoji.identifier === pushpin) {
     const guild = reaction.message.guild;
     const author = guild && guild.member(reaction.message.author);
@@ -54,6 +60,4 @@ client.on('messageReactionAdd', async (reaction: MessageReaction, user: User | P
       );
     }
   }
-});
-
-client.login(process.env.DISCORD_TOKEN);
+}
