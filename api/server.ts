@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { Client, WebhookClient, MessageReaction } from 'discord.js';
+import { Client, WebhookClient, MessageReaction, User, PartialUser } from 'discord.js';
 
 dotenv.config();
 
@@ -14,12 +14,20 @@ client.on('ready', () => {
   console.log('ピン留めちゃん、準備完了ですっ！');
 });
 
-client.on('messageReactionAdd', async (reaction: MessageReaction) => {
+client.on('messageReactionAdd', async (reaction: MessageReaction, user: User | PartialUser) => {
   if (reaction.partial) {
     try {
       await reaction.fetch();
     } catch (error) {
       console.log('メッセージが読めなかった……: ', error);
+      return;
+    }
+  }
+  if (user.partial) {
+    try {
+      user = await user.fetch();
+    } catch (error) {
+      console.log('誰がピン留めしたのか分からなかった……: ', error);
       return;
     }
   }
@@ -33,13 +41,15 @@ client.on('messageReactionAdd', async (reaction: MessageReaction) => {
     const attachements = reaction.message.attachments.values();
 
     if (0 < reaction.message.embeds.length) {
-      hook.send(reaction.message.embeds);
+      await hook.send(reaction.message.embeds);
     } else {
-      hook.send(
+      await hook.send(
         `${reaction.message.content}\nby ${displayName || reaction.message.author.username}`,
         [...attachements],
       );
     }
+    const nickname = reaction.message.guild?.member(user)?.nickname;
+    await hook.send(`ピンしたのはね、${nickname || user.username} だよ`);
   }
 });
 
