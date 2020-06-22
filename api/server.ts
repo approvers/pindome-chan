@@ -32,8 +32,11 @@ client.on('messageReactionAdd', async (reaction: MessageReaction, user: User | P
     }
   }
 
-  // pushpin
-  if (reaction.emoji.identifier === '%F0%9F%93%8C') {
+  const nickname = reaction.message.guild?.member(user)?.nickname;
+  const whoPinned = `ピンしたのはね、${nickname || user.username} だよ`;
+
+  const pushpin = '%F0%9F%93%8C';
+  if (reaction.emoji.identifier === pushpin) {
     const guild = reaction.message.guild;
     const author = guild && guild.member(reaction.message.author);
     const displayName = author && author.displayName;
@@ -41,15 +44,15 @@ client.on('messageReactionAdd', async (reaction: MessageReaction, user: User | P
     const attachements = reaction.message.attachments.values();
 
     if (0 < reaction.message.embeds.length) {
-      await hook.send(reaction.message.embeds);
+      await hook.send(whoPinned, reaction.message.embeds);
     } else {
       await hook.send(
-        `${reaction.message.content}\nby ${displayName || reaction.message.author.username}`,
+        `${reaction.message.content}\nby ${
+          displayName || reaction.message.author.username
+        }\n${whoPinned}\n`,
         [...attachements],
       );
     }
-    const nickname = reaction.message.guild?.member(user)?.nickname;
-    await hook.send(`ピンしたのはね、${nickname || user.username} だよ`);
   }
 });
 
