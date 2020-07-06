@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - refactor
 
 env:
   IMAGE_NAME: pindome-chan
