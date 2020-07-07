@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - master
+          
+    tags:
+      - v*
+
 
 env:
   IMAGE_NAME: pindome-chan
