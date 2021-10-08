@@ -4,8 +4,14 @@ import {
   InteractionHandler,
   Interaction,
   InteractionType,
-  InteractionResponseType,
 } from "../types";
+
+const HEX_SEGMENT = /.{1,2}/g;
+
+const fromHexString = (hexString: string) =>
+  new Uint8Array(
+    hexString.match(HEX_SEGMENT)!.map((byte) => parseInt(byte, 16)),
+  );
 
 const jsonResponse = (data: any) =>
   new Response(JSON.stringify(data), {
@@ -20,9 +26,9 @@ const makeValidator =
     const body = await request.text();
 
     const isValid = nacl.sign.detached.verify(
-      Buffer.from(timestamp + body),
-      Buffer.from(signature, "hex"),
-      Buffer.from(publicKey, "hex"),
+      new TextEncoder().encode(timestamp + body),
+      fromHexString(signature),
+      fromHexString(publicKey),
     );
 
     if (!isValid) throw new Error("Invalid request");
