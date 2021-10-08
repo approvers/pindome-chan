@@ -2,37 +2,34 @@
   "compilerOptions": {
     "target": "esnext",
     "lib": [
-      "esnext"
+      "esnext",
+      "webworker"
     ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
+    "alwaysStrict": true,
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "isolatedModules": true,
+    "isolatedModules": false,
     "jsx": "preserve",
     "noImplicitAny": true,
     "noImplicitReturns": true,
+    "strictNullChecks": true,
     "noEmit": false,
     "baseUrl": ".",
-    "paths": {
-      "mutex-promise": [
-        "types/mutex-promise"
-      ]
-    },
-    "typeRoots": [
-      "./node_modules/@types",
-      "./src/typings"
+    "types": [
+      "@cloudflare/workers-types",
+      "@types/service-worker-mock"
     ]
   },
   "exclude": [
     "node_modules"
   ],
   "include": [
-    "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
   ],
