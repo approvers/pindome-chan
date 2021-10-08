@@ -1,8 +1,8 @@
 import { createHandler } from "../src/handler";
 
-const APPLICATION_ID = process.env.APPLICATION_ID ?? "";
-const APPLICATION_SECRET = process.env.APPLICATION_SECRET ?? "";
-const PUBLIC_KEY = process.env.PUBLIC_KEY ?? "";
+declare const APPLICATION_ID: string;
+declare const APPLICATION_SECRET: string;
+declare const PUBLIC_KEY: string;
 
 const handler = createHandler({
   commands: [],
