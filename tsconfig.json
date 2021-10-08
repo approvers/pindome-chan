@@ -1,25 +1,26 @@
 {
   "compilerOptions": {
+    "outDir": "./dist",
+    "module": "commonjs",
     "target": "esnext",
     "lib": [
       "esnext",
       "webworker"
     ],
+    "isolatedModules": false,
+    "sourceMap": true,
+    "preserveConstEnums": true,
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
     "alwaysStrict": true,
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
-    "module": "commonjs",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "isolatedModules": false,
-    "jsx": "preserve",
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "strictNullChecks": true,
-    "noEmit": false,
     "baseUrl": ".",
     "types": [
       "@cloudflare/workers-types",
@@ -27,7 +28,9 @@
     ]
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist",
+    "test"
   ],
   "include": [
     "**/*.ts",
