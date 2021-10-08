@@ -19,7 +19,7 @@ export const createHandler = ({
   applicationSecret,
   publicKey,
 }: HandlerOptions): ((request: Request) => Response | Promise<Response>) => {
-  router.get("/", authorize({ applicationId }));
+  router.post("/", authorize({ applicationId }));
   router.post("/interaction", interaction({ publicKey, commands }));
   router.get(
     "/setup",
