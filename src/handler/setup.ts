@@ -1,5 +1,5 @@
 import { ApplicationCommand, InteractionHandler } from "../types";
-import { authorization } from "@glenstack/cf-workers-fetch-helpers";
+import { authorization } from "./setup/authorization";
 
 const TOKEN_URL = "https://discord.com/api/8/oauth2/token";
 
