@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { createHandler } from "src/handler";
+import { createHandler } from "../src/handler";
 
 dotenv.config();
 
