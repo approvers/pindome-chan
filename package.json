@@ -16,13 +16,12 @@
   "dependencies": {
     "@glenstack/cf-workers-fetch-helpers": "^1.3.0",
     "@glenstack/cf-workers-router": "^1.0.1",
-    "dotenv": "^8.6.0",
     "serverless-cloudflare-workers": "^1.2.0",
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^2.2.2",
-    "@types/node": "^14.17.21",
+    "@types/node": "^16.10.3",
     "@types/service-worker-mock": "^2.0.1",
     "@typescript-eslint/eslint-plugin": "^3.10.1",
     "@typescript-eslint/parser": "^3.10.1",

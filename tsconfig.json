@@ -24,7 +24,8 @@
     "baseUrl": ".",
     "types": [
       "@cloudflare/workers-types",
-      "@types/service-worker-mock"
+      "@types/service-worker-mock",
+      "@types/node"
     ]
   },
   "exclude": [
