@@ -1,11 +1,4 @@
-import {
-  ApplicationCommand,
-  Interaction,
-  InteractionType,
-  InteractionHandler,
-  InteractionResponse,
-  InteractionResponseType,
-} from "./types";
+import { ApplicationCommand, InteractionHandler } from "./types";
 import { Router } from "./handler/router";
 import { authorize } from "./handler/authorize";
 import { interaction } from "./handler/interaction";
@@ -26,23 +19,8 @@ export const createHandler = ({
   applicationSecret,
   publicKey,
 }: HandlerOptions): ((request: Request) => Response | Promise<Response>) => {
-  router.method("GET", "/", authorize({ applicationId }));
-  router.method("POST", "/", async (req) => {
-    const json = (await req.json()) as Interaction;
-    switch (json.type) {
-      case InteractionType.Ping:
-        return new Response(
-          new Blob([
-            JSON.stringify(<InteractionResponse>{
-              type: InteractionResponseType.Pong,
-            }),
-          ]),
-          { status: 200 },
-        );
-    }
-    return new Response(null, { status: 400 });
-  });
-  router.method("POST", "/interaction", interaction({ publicKey, commands }));
+  router.method("POST", "/", authorize({ applicationId }));
+  router.method("POST", "/interactions", interaction({ publicKey, commands }));
   router.method(
     "GET",
     "/setup",
