@@ -1,15 +1,28 @@
+import {
+  Interaction,
+  InteractionResponse,
+  InteractionResponseType,
+  InteractionType,
+} from "../types";
+
 export const authorize =
   ({ applicationId }: { applicationId: string }) =>
-  async (): Promise<Response> => {
-    const urlSearchParams = new URLSearchParams({
-      client_id: applicationId,
-      scope: encodeURIComponent("applications.commands"),
-    });
-    const redirectURL = new URL("https://discord.com/api/oauth2/authorize");
-    redirectURL.search = urlSearchParams.toString();
+  async (req: Request): Promise<Response> => {
+    const interaction = (await req.json()) as Interaction;
 
+    if (interaction.type == InteractionType.Ping) {
+      return new Response(
+        new Blob([
+          JSON.stringify(<InteractionResponse>{
+            type: InteractionResponseType.Pong,
+          }),
+        ]),
+        {
+          status: 200,
+        },
+      );
+    }
     return new Response(null, {
-      status: 301,
-      headers: { Location: redirectURL.toString() },
+      status: 400,
     });
   };
