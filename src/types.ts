@@ -140,10 +140,10 @@ export type Interaction = {
 
 export enum InteractionResponseType {
   Pong = 1,
-  Acknowledge = 2,
-  ChannelMessage = 3,
   ChannelMessageWithSource = 4,
-  AcknowledgeWithSource = 5,
+  DeferredChannelMessageWithSource = 5,
+  DeferredUpdateMessage = 6,
+  UpdateMessage = 7,
 }
 
 export enum AllowedMentionTypes {
