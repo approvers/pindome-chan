@@ -6,7 +6,7 @@ import {
   InteractionResponse,
   InteractionResponseType,
 } from "./types";
-import { Router } from "@glenstack/cf-workers-router";
+import { Router } from "./handler/router";
 import { authorize } from "./handler/authorize";
 import { interaction } from "./handler/interaction";
 import { setup } from "./handler/setup";
@@ -26,8 +26,8 @@ export const createHandler = ({
   applicationSecret,
   publicKey,
 }: HandlerOptions): ((request: Request) => Response | Promise<Response>) => {
-  router.get("/", authorize({ applicationId }));
-  router.post("/", async (req) => {
+  router.method("GET", "/", authorize({ applicationId }));
+  router.method("POST", "/", async (req) => {
     const json = (await req.json()) as Interaction;
     switch (json.type) {
       case InteractionType.Ping:
@@ -42,8 +42,9 @@ export const createHandler = ({
     }
     return new Response(null, { status: 400 });
   });
-  router.post("/interaction", interaction({ publicKey, commands }));
-  router.get(
+  router.method("POST", "/interaction", interaction({ publicKey, commands }));
+  router.method(
+    "GET",
     "/setup",
     setup({
       applicationId,
