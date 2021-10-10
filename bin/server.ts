@@ -11,6 +11,6 @@ const handler = createHandler({
   publicKey: PUBLIC_KEY,
 });
 
-addEventListener("fetch", (event) => handler(event.request));
+addEventListener("fetch", (event) => event.respondWith(handler(event.request)));
 
 console.log("ピン留めちゃん、準備完了ですっ！");
