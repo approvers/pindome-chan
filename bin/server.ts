@@ -3,7 +3,7 @@ import {
   Interaction,
   InteractionResponseType,
   InteractionType,
-} from "src/types";
+} from "../src/types";
 import { createHandler } from "../src/handler";
 
 declare const APPLICATION_ID: string;
