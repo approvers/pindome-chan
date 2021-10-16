@@ -1,4 +1,3 @@
-import nacl from "tweetnacl";
 import {
   ApplicationCommand,
   InteractionHandler,
@@ -6,46 +5,17 @@ import {
   InteractionType,
 } from "../types";
 
-const HEX_SEGMENT = /.{1,2}/g;
-
-const fromHexString = (hexString: string) =>
-  new Uint8Array(
-    hexString.match(HEX_SEGMENT)!.map((byte) => parseInt(byte, 16)),
-  );
-
-const jsonResponse = (data: any) =>
+const jsonResponse = (data: unknown) =>
   new Response(JSON.stringify(data), {
     headers: { "Content-Type": "application/json" },
   });
 
-const makeValidator =
-  ({ publicKey }: { publicKey: string }) =>
-  async (request: Request): Promise<boolean> => {
-    const signature = String(request.headers.get("X-Signature-Ed25519"));
-    const timestamp = String(request.headers.get("X-Signature-Timestamp"));
-    const body = await request.text();
-
-    return nacl.sign.detached.verify(
-      new TextEncoder().encode(timestamp + body),
-      fromHexString(signature),
-      fromHexString(publicKey),
-    );
-  };
-
 export const interaction = ({
-  publicKey,
   commands,
 }: {
-  publicKey: string;
   commands: [ApplicationCommand, InteractionHandler][];
 }) => {
-  const validateRequest = makeValidator({ publicKey });
-
   return async (request: Request): Promise<Response> => {
-    if (!(await validateRequest(request.clone()))) {
-      return new Response(null, { status: 401 });
-    }
-
     try {
       const interaction = (await request.json()) as Interaction;
 
