@@ -37,8 +37,13 @@ export interface Route {
   handler: Handler;
 }
 
+export interface Middleware {
+  (next: Handler): Handler;
+}
+
 export class Router {
   private routes: Route[] = [];
+  private middleware: Middleware = (x) => x;
 
   handle(conditions: readonly Condition[], handler: Handler): this {
     this.routes.push({
@@ -56,12 +61,18 @@ export class Router {
   }
 
   route(request: Request): Response | Promise<Response> {
-    return (
-      this.resolve(request)?.handler(request) ??
-      new Response(null, {
+    const route = this.resolve(request);
+    if (route === undefined) {
+      return new Response(null, {
         status: 404,
-      })
-    );
+      });
+    }
+    return this.middleware(route.handler)(request);
+  }
+
+  addMiddleware(middleware: Middleware): this {
+    this.middleware = (x) => middleware(this.middleware(x));
+    return this;
   }
 
   private resolve(request: Request): Route | undefined {
