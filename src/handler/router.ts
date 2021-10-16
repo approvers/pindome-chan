@@ -71,7 +71,8 @@ export class Router {
   }
 
   addMiddleware(middleware: Middleware): this {
-    this.middleware = (x) => middleware(this.middleware(x));
+    const prev = this.middleware;
+    this.middleware = (x) => middleware(prev(x));
     return this;
   }
 
