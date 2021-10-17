@@ -11,7 +11,7 @@
     "dev": "ts-node bin/server.ts",
     "format": "prettier --write  '*.{json,js}' 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
     "lint": "eslint --ext .ts --ignore-path .gitignore .",
-    "lint:fix": "npm run lint --fix"
+    "lint:fix": "npm run lint -- --fix"
   },
   "dependencies": {
     "serverless-cloudflare-workers": "^1.2.0",
