@@ -21,7 +21,7 @@ export const createHandler = ({
   publicKey,
   guildId,
 }: HandlerOptions): ((request: Request) => Response | Promise<Response>) => {
-  router.method("POST", "/", interaction({ commands }));
+  router.method("POST", "/", interaction({ commands, publicKey }));
   router.method(
     "GET",
     "/setup",
@@ -32,6 +32,5 @@ export const createHandler = ({
       guildId,
     }),
   );
-  router.addMiddleware(authorize({ publicKey }));
   return (request: Request) => router.route(request);
 };
