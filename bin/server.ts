@@ -9,6 +9,7 @@ import { createHandler } from "../src/handler";
 declare const APPLICATION_ID: string;
 declare const APPLICATION_SECRET: string;
 declare const PUBLIC_KEY: string;
+declare const GUILD_ID: string;
 
 const errorResponse = {
   type: InteractionResponseType.ChannelMessageWithSource,
@@ -46,6 +47,7 @@ const handler = createHandler({
   applicationId: APPLICATION_ID,
   applicationSecret: APPLICATION_SECRET,
   publicKey: PUBLIC_KEY,
+  guildId: GUILD_ID,
 });
 
 addEventListener("fetch", (event) => event.respondWith(handler(event.request)));

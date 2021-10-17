@@ -11,6 +11,7 @@ export interface HandlerOptions {
   applicationId: string;
   applicationSecret: string;
   publicKey: string;
+  guildId: string;
 }
 
 export const createHandler = ({
@@ -18,6 +19,7 @@ export const createHandler = ({
   applicationId,
   applicationSecret,
   publicKey,
+  guildId,
 }: HandlerOptions): ((request: Request) => Response | Promise<Response>) => {
   router.method("POST", "/", interaction({ commands }));
   router.method(
@@ -27,6 +29,7 @@ export const createHandler = ({
       applicationId,
       applicationSecret,
       commands,
+      guildId,
     }),
   );
   router.addMiddleware(authorize({ publicKey }));
