@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+
 export interface Attachment {
   id: Snowflake;
   filename: string;

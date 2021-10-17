@@ -13,19 +13,19 @@ export const authorization = (
   prevFetch: typeof fetch,
   options: AuthorizationOptions,
 ): typeof fetch => {
-  let authorization;
+  let authKey;
   if ("username" in options || "password" in options) {
     const basicAuth = btoa(
       `${options.username || ""}:${options.password || ""}`,
     );
-    authorization = `Basic ${basicAuth}`;
+    authKey = `Basic ${basicAuth}`;
   } else if ("bearer" in options) {
-    authorization = `Bearer ${options.bearer}`;
+    authKey = `Bearer ${options.bearer}`;
   } else {
     throw new Error("invalid options");
   }
 
   return addHeaders(prevFetch, {
-    headers: { Authorization: authorization },
+    headers: { Authorization: authKey },
   });
 };

@@ -1,7 +1,6 @@
 import { ApplicationCommand, InteractionHandler } from "./types";
 import { Router } from "./handler/router";
-import { authorize } from "./handler/authorize";
-import { interaction } from "./handler/interaction";
+import { interactions } from "./handler/interaction";
 import { setup } from "./handler/setup";
 
 const router = new Router();
@@ -21,7 +20,7 @@ export const createHandler = ({
   publicKey,
   guildId,
 }: HandlerOptions): ((request: Request) => Response | Promise<Response>) => {
-  router.method("POST", "/", interaction({ commands, publicKey }));
+  router.method("POST", "/", interactions({ commands, publicKey }));
   router.method(
     "GET",
     "/setup",

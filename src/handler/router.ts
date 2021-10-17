@@ -10,7 +10,7 @@ export type Method =
   | "TRACE";
 
 const methodCondition = (method: Method) => (request: Request) =>
-  method.toLowerCase() == request.method.toLowerCase();
+  method.toLowerCase() === request.method.toLowerCase();
 
 export type PathMatcher = string | RegExp;
 
@@ -43,7 +43,8 @@ export interface Middleware {
 
 export class Router {
   private routes: Route[] = [];
-  private middleware: Middleware = (x) => x;
+
+  private middleware: Middleware = (handler) => handler;
 
   handle(conditions: readonly Condition[], handler: Handler): this {
     this.routes.push({
@@ -56,6 +57,7 @@ export class Router {
   method(method: Method, url: PathMatcher, handler: Handler): this {
     return this.handle([methodCondition(method), pathCondition(url)], handler);
   }
+
   all(handler: Handler): this {
     return this.handle([], handler);
   }
@@ -72,7 +74,7 @@ export class Router {
 
   addMiddleware(middleware: Middleware): this {
     const prev = this.middleware;
-    this.middleware = (x) => middleware(prev(x));
+    this.middleware = (handler) => middleware(prev(handler));
     return this;
   }
 

@@ -1,10 +1,11 @@
 import type { Handler, Middleware } from "./router";
 import nacl from "tweetnacl";
 
-const HEX_SEGMENT = /.{1,2}/g;
+const HEX_SEGMENT = /.{1,2}/gu;
 
 const fromHexString = (hexString: string) =>
   new Uint8Array(
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     hexString.match(HEX_SEGMENT)!.map((byte) => parseInt(byte, 16)),
   );
 

@@ -25,7 +25,7 @@ const handler = createHandler({
         type: ApplicationCommandType.Message,
         name: "Pin this message",
       },
-      async (interaction: Interaction) => {
+      (interaction: Interaction) => {
         if (interaction.type !== InteractionType.ApplicationCommand) {
           return errorResponse;
         }
@@ -33,7 +33,7 @@ const handler = createHandler({
         if (messages === undefined) {
           return errorResponse;
         }
-        const message = Object.values(messages)[0];
+        const [_message] = Object.values(messages);
         // TODO: transport message to the webhook
         return {
           type: InteractionResponseType.ChannelMessageWithSource,
