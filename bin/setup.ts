@@ -6,7 +6,7 @@ dotenv.config();
 const { APPLICATION_ID, GUILD_ID, DISCORD_TOKEN } = process.env;
 
 const data = JSON.stringify({
-  name: "ピン留めちゃんの必殺技",
+  name: "ピン留め",
   type: 3,
 });
 

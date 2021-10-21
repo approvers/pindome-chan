@@ -23,7 +23,7 @@ const handler = createHandler({
     [
       {
         type: ApplicationCommandType.Message,
-        name: "Pin this message",
+        name: "ピン留め",
       },
       (interaction: Interaction) => {
         if (interaction.type !== InteractionType.ApplicationCommand) {
@@ -38,7 +38,7 @@ const handler = createHandler({
         return {
           type: InteractionResponseType.ChannelMessageWithSource,
           data: {
-            content: "ピン留めしておきます！",
+            content: "実装中だよ！",
           },
         };
       },
