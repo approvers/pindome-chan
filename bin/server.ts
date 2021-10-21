@@ -46,7 +46,7 @@ const handler = createHandler({
         return {
           type: InteractionResponseType.ChannelMessageWithSource,
           data: {
-            content: "実装中だよ！",
+            content: "ピン留めしましたっ！",
           },
         };
       },
