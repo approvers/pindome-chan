@@ -13,6 +13,6 @@ PUBLIC_KEY = "7316c17b129c3bfb643f1895986dbce8cc99b80d3a1f46018801242460852960"
 GUILD_ID = "683939861539192860"
 
 [build]
-command = "npm install && npm run build"
+command = "npm install && npm run setup && npm run build"
 [build.upload]
 format = "service-worker"
