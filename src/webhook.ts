@@ -17,7 +17,5 @@ export const webhook =
         body: JSON.stringify(message),
       },
     );
-    if (!res.ok) {
-      console.error(await res.text());
-    }
+    console.log(await res.text());
   };
