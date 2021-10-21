@@ -5,16 +5,18 @@ dotenv.config();
 
 const { APPLICATION_ID, GUILD_ID, DISCORD_TOKEN } = process.env;
 
-const data = JSON.stringify({
-  name: "ピン留め",
-  type: 3,
-});
+const data = JSON.stringify([
+  {
+    name: "ピン留め",
+    type: 3,
+  },
+]);
 
 const options: RequestOptions = {
   hostname: "discord.com",
   port: 443,
   path: `/api/v8/applications/${APPLICATION_ID}/guilds/${GUILD_ID}/commands`,
-  method: "POST",
+  method: "PUT",
   headers: {
     Authorization: `Bot ${DISCORD_TOKEN}`,
     "Content-Type": "application/json",
