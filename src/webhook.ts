@@ -14,6 +14,7 @@ export const webhook =
         headers: {
           "Content-Type": "application/json",
         },
+        method: "POST",
         body: JSON.stringify(message),
       },
     );
