@@ -5,11 +5,14 @@ import {
   InteractionType,
 } from "../src/types";
 import { createHandler } from "../src/handler";
+import { webhook } from "../src/webhook";
 
 declare const APPLICATION_ID: string;
 declare const APPLICATION_SECRET: string;
 declare const PUBLIC_KEY: string;
 declare const GUILD_ID: string;
+declare const DISCORD_WEBHOOK_ID: string;
+declare const DISCORD_WEBHOOK_TOKEN: string;
 
 const errorResponse = {
   type: InteractionResponseType.ChannelMessageWithSource,
@@ -17,6 +20,11 @@ const errorResponse = {
     content: "ピン留めできないみたいです…",
   },
 };
+
+const destination = webhook({
+  webhookId: DISCORD_WEBHOOK_ID,
+  webhookToken: DISCORD_WEBHOOK_TOKEN,
+});
 
 const handler = createHandler({
   commands: [
@@ -33,8 +41,8 @@ const handler = createHandler({
         if (messages === undefined) {
           return errorResponse;
         }
-        const [_message] = Object.values(messages);
-        // TODO: transport message to the webhook
+        const [message] = Object.values(messages);
+        destination({ ...message });
         return {
           type: InteractionResponseType.ChannelMessageWithSource,
           data: {
