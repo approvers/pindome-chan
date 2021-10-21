@@ -42,7 +42,10 @@ const handler = createHandler({
           return errorResponse;
         }
         const [message] = Object.values(messages);
-        destination({ ...message });
+        destination({
+          ...message,
+          content: `${message.content}\nby ${message.author.username}`,
+        });
         return {
           type: InteractionResponseType.ChannelMessageWithSource,
           data: {
