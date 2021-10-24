@@ -47,7 +47,7 @@ const handler = createHandler({
           content: `${message.content}\nby ${message.author.username}`,
         });
         let content = "ピン留めしましたっ！";
-        if (message.content.length === 0) {
+        if (message.content.length !== 0) {
           content += "\n";
           const PREVIEW_LENGTH = 20;
           content += message.content.substr(0, PREVIEW_LENGTH);
