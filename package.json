@@ -1,6 +1,6 @@
 {
   "name": "pindome-chan",
-  "version": "3.0.0",
+  "version": "3.0.2",
   "main": "dist/index.js",
   "repository": "https://github.com/approvers/pindome-chan",
   "author": "MikuroXina <ryosukadnak@gmail.com>",
