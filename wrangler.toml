@@ -1,0 +1,19 @@
+name = "pindome-chan"
+type = "javascript"
+zone_id = ""
+account_id = "8268c738e9077355713192e35ac055c3"
+route = "pindome-chan"
+workers_dev = true
+compatibility_date = "2021-10-08"
+
+[vars]
+ENVIRONMENT = "dev"
+APPLICATION_ID = "716934370044280853"
+PUBLIC_KEY = "7316c17b129c3bfb643f1895986dbce8cc99b80d3a1f46018801242460852960"
+GUILD_ID = "683939861539192860"
+DISCORD_WEBHOOK_ID = "716940489659777075"
+
+[build]
+command = "npm install && npm run setup && npm run build"
+[build.upload]
+format = "service-worker"
