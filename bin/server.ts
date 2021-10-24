@@ -46,10 +46,15 @@ const handler = createHandler({
           ...message,
           content: `${message.content}\nby ${message.author.username}`,
         });
+        const PREVIEW_LENGTH = 20;
+        let preview = message.content.substr(0, PREVIEW_LENGTH);
+        if (PREVIEW_LENGTH <= message.content.length) {
+          preview += "...";
+        }
         return {
           type: InteractionResponseType.ChannelMessageWithSource,
           data: {
-            content: "ピン留めしましたっ！",
+            content: `ピン留めしましたっ！\n「${preview}」`,
           },
         };
       },
