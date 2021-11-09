@@ -7,15 +7,19 @@ export interface WebhookOptions {
 
 export const webhook =
   ({ webhookId, webhookToken }: WebhookOptions) =>
-  async (message: unknown): Promise<void> => {
+  async (message: Record<string, unknown>): Promise<void> => {
+    const form = new FormData();
+    for (const [key, value] of Object.entries(message)) {
+      form.append(key, `${value}`);
+    }
     const res = await fetch(
       [ENDPOINT, "webhooks", webhookId, webhookToken].join("/"),
       {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
         method: "POST",
-        body: JSON.stringify(message),
+        body: form,
       },
     );
     console.log(await res.text());
