@@ -33,7 +33,7 @@ const handler = createHandler({
         type: ApplicationCommandType.Message,
         name: "ピン留め",
       },
-      (interaction: Interaction) => {
+      async (interaction: Interaction) => {
         if (interaction.type !== InteractionType.ApplicationCommand) {
           return errorResponse;
         }
@@ -42,10 +42,22 @@ const handler = createHandler({
           return errorResponse;
         }
         const [message] = Object.values(messages);
-        destination({
-          ...message,
-          content: `${message.content}\nby ${message.author.username}`,
-        });
+        console.log(message);
+        const files = await Promise.all(
+          // eslint-disable-next-line camelcase
+          message.attachments.map(async ({ proxy_url }) => {
+            const res = await fetch(proxy_url);
+            console.log(res.statusText);
+            return res.blob();
+          }),
+        );
+        await destination(
+          {
+            ...message,
+            content: `${message.content}\nby ${message.author.username}`,
+          },
+          files,
+        );
         let content = "ピン留めしましたっ！";
         if (message.content.length !== 0) {
           content += "\n";
