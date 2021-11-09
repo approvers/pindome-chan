@@ -1,12 +1,24 @@
 # pindome-chan
 
-ピン留めちゃんです。仲良くしてね。
+ピン留めちゃんです. 仲良くしてね.
 
+ウェブフックを作成して環境変数にその ID やトークンを設定すれば, いつでもメッセージを複製して転送できます.
 
 ## 設定
 
-| 環境変数 | 説明 |
-| -- | -- |
-| DISCORD_TOKEN | Discord の Bot のトークン |
-| DISCORD_WEBHOOK | Discord の Webhook URL の前半部分 |
-| DISCORD_WEBHOOK | Discord の Webhook URL の後半部分 |
+### 公開してもよいもの
+
+| 環境変数             | 説明                                  | 省略値 |
+| -------------------- | ------------------------------------- | ------ |
+| `ENVIRONMENT`        | デバッグと本番を区別する              | `dev`  |
+| `APPLICATION_ID`     | Discord アプリケーションの ID         | N/A    |
+| `PUBLIC_KEY`         | Discord アプリケーションの公開鍵      | N/A    |
+| `GUILD_ID`           | このボットが参加しているサーバーの ID | N/A    |
+| `DISCORD_WEBHOOK_ID` | メッセージの転送先のウェブフックの ID | N/A    |
+
+### 公開してはいけないもの
+
+| 環境変数                | 説明                                       | 省略値 |
+| ----------------------- | ------------------------------------------ | ------ |
+| `APPLICATION_SECRET`    | Discord アプリケーションの秘密鍵           | N/A    |
+| `DISCORD_WEBHOOK_TOKEN` | メッセージの転送先のウェブフックのトークン | N/A    |
