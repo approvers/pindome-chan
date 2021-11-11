@@ -1,36 +1,7 @@
-import type { ApplicationCommand, InteractionHandler } from "../types";
+import { ApplicationCommand, ENDPOINT, InteractionHandler } from "../types";
 import type { Handler } from "./router";
 import { authorization } from "./setup/authorization";
-
-const ENDPOINT = "https://discord.com/api/v8";
-
-const TOKEN_URL = `${ENDPOINT}/oauth2/token`;
-
-const getAuthorizationCode = async (authedFetch: typeof fetch) => {
-  const request = new Request(TOKEN_URL, {
-    method: "POST",
-    body: new URLSearchParams({
-      // eslint-disable-next-line camelcase
-      grant_type: "client_credentials",
-      scope: "applications.commands.update",
-    }).toString(),
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-  });
-
-  const response = await authedFetch(request);
-  if (!response.ok) {
-    throw new Error("Failed to request an Authorization code.");
-  }
-
-  try {
-    const data = await response.json();
-    return data.access_token;
-  } catch {
-    throw new Error("Failed to parse the Authorization code response.");
-  }
-};
+import { getAuthorizationCode } from "../oauth-code";
 
 const deleteExistingCommands = async (
   { applicationId, guildId }: { applicationId: string; guildId: string },
@@ -122,7 +93,10 @@ export const setup = ({
 
   return async (): Promise<Response> => {
     try {
-      const bearer = await getAuthorizationCode(basicAuthFetch);
+      const bearer = await getAuthorizationCode(
+        basicAuthFetch,
+        "applications.commands.update",
+      );
       const authedFetch = authorization(fetch, { bearer });
 
       await deleteExistingCommands({ applicationId, guildId }, authedFetch);

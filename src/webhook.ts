@@ -1,6 +1,4 @@
-import { PartialMessage } from "./types";
-
-const ENDPOINT = "https://discord.com/api/v8";
+import { ENDPOINT, PartialMessage } from "./types";
 
 export interface WebhookOptions {
   webhookId: string;
