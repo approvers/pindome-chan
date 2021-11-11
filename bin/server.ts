@@ -17,9 +17,9 @@ declare const DISCORD_WEBHOOK_TOKEN: string;
 const errorResponse = {
   type: InteractionResponseType.ChannelMessageWithSource,
   data: {
-    content: "ピン留めできないみたいです…",
+    content: "ピン留めできませんでした…",
   },
-};
+} as const;
 
 const destination = webhook({
   webhookId: DISCORD_WEBHOOK_ID,
@@ -43,21 +43,26 @@ const handler = createHandler({
         }
         const [message] = Object.values(messages);
         console.log(message);
-        const files = await Promise.all(
-          // eslint-disable-next-line camelcase
-          message.attachments.map(async ({ proxy_url }) => {
-            const res = await fetch(proxy_url);
-            console.log(res.statusText);
-            return res.blob();
-          }),
-        );
-        await destination(
-          {
-            ...message,
-            content: `${message.content}\nby ${message.author.username}`,
-          },
-          files,
-        );
+        try {
+          const files = await Promise.all(
+            // eslint-disable-next-line camelcase
+            message.attachments.map(async ({ proxy_url }) => {
+              const res = await fetch(proxy_url);
+              console.log(res.statusText);
+              return res.blob();
+            }),
+          );
+          await destination(
+            {
+              ...message,
+              content: `${message.content}\nby ${message.author.username}`,
+            },
+            files,
+          );
+        } catch (err) {
+          console.log(err);
+          return errorResponse;
+        }
         let content = "ピン留めしましたっ！";
         if (message.content.length !== 0) {
           content += "\n";
