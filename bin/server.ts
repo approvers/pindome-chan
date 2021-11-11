@@ -3,8 +3,11 @@ import {
   Interaction,
   InteractionResponseType,
   InteractionType,
+  PartialMessage,
 } from "../src/types";
+import { authorization } from "../src/handler/setup/authorization";
 import { createHandler } from "../src/handler";
+import { getAuthorizationCode } from "../src/oauth-code";
 import { webhook } from "../src/webhook";
 
 declare const APPLICATION_ID: string;
@@ -26,6 +29,24 @@ const destination = webhook({
   webhookToken: DISCORD_WEBHOOK_TOKEN,
 });
 
+const basicAuthFetch = authorization(fetch, {
+  username: APPLICATION_ID,
+  password: APPLICATION_SECRET,
+});
+
+const buildContent = (message: PartialMessage) => {
+  let content = "ピン留めしましたっ！";
+  if (message.content.length !== 0) {
+    content += "\n";
+    const PREVIEW_LENGTH = 20;
+    content += message.content.substr(0, PREVIEW_LENGTH);
+    if (PREVIEW_LENGTH <= message.content.length) {
+      content += "...";
+    }
+  }
+  return content;
+};
+
 const handler = createHandler({
   commands: [
     [
@@ -43,11 +64,18 @@ const handler = createHandler({
         }
         const [message] = Object.values(messages);
         console.log(message);
+
+        const bearer = await getAuthorizationCode(
+          basicAuthFetch,
+          "messages.read",
+        );
+        const authedFetch = authorization(fetch, { bearer });
+
         try {
           const files = await Promise.all(
             // eslint-disable-next-line camelcase
             message.attachments.map(async ({ proxy_url }) => {
-              const res = await fetch(proxy_url);
+              const res = await authedFetch(proxy_url);
               console.log(res.statusText);
               return res.blob();
             }),
@@ -63,19 +91,10 @@ const handler = createHandler({
           console.log(err);
           return errorResponse;
         }
-        let content = "ピン留めしましたっ！";
-        if (message.content.length !== 0) {
-          content += "\n";
-          const PREVIEW_LENGTH = 20;
-          content += message.content.substr(0, PREVIEW_LENGTH);
-          if (PREVIEW_LENGTH <= message.content.length) {
-            content += "...";
-          }
-        }
         return {
           type: InteractionResponseType.ChannelMessageWithSource,
           data: {
-            content,
+            content: buildContent(message),
           },
         };
       },
