@@ -1,5 +1,6 @@
 import {
   ApplicationCommandType,
+  Attachment,
   Interaction,
   InteractionResponseType,
   InteractionType,
@@ -40,6 +41,16 @@ const buildContent = (message: PartialMessage) => {
   return content;
 };
 
+// eslint-disable-next-line camelcase
+const fetchAttachment = async ({ proxy_url }: Attachment): Promise<Blob> => {
+  const res = await fetch(proxy_url);
+  if (!res.ok) {
+    console.log(res.statusText);
+    throw new Error(await res.text());
+  }
+  return res.blob();
+};
+
 const handler = createHandler({
   commands: [
     [
@@ -60,15 +71,7 @@ const handler = createHandler({
 
         try {
           const files = await Promise.all(
-            // eslint-disable-next-line camelcase
-            message.attachments.map(async ({ proxy_url }) => {
-              const res = await fetch(proxy_url);
-              if (!res.ok) {
-                console.log(res.statusText);
-                throw new Error(await res.text());
-              }
-              return res.blob();
-            }),
+            message.attachments.map(fetchAttachment),
           );
           await destination(
             {
