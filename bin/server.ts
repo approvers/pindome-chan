@@ -5,9 +5,7 @@ import {
   InteractionType,
   PartialMessage,
 } from "../src/types";
-import { authorization } from "../src/handler/setup/authorization";
 import { createHandler } from "../src/handler";
-import { getAuthorizationCode } from "../src/oauth-code";
 import { webhook } from "../src/webhook";
 
 declare const APPLICATION_ID: string;
@@ -27,11 +25,6 @@ const errorResponse = {
 const destination = webhook({
   webhookId: DISCORD_WEBHOOK_ID,
   webhookToken: DISCORD_WEBHOOK_TOKEN,
-});
-
-const basicAuthFetch = authorization(fetch, {
-  username: APPLICATION_ID,
-  password: APPLICATION_SECRET,
 });
 
 const buildContent = (message: PartialMessage) => {
@@ -65,18 +58,13 @@ const handler = createHandler({
         const [message] = Object.values(messages);
         console.log(message);
 
-        const bearer = await getAuthorizationCode(
-          basicAuthFetch,
-          "messages.read",
-        );
-        const authedFetch = authorization(fetch, { bearer });
-
         try {
           const files = await Promise.all(
             // eslint-disable-next-line camelcase
             message.attachments.map(async ({ proxy_url }) => {
-              const res = await authedFetch(proxy_url);
+              const res = await fetch(proxy_url);
               if (!res.ok) {
+                console.log(res.statusText);
                 throw new Error(await res.text());
               }
               return res.blob();
