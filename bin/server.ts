@@ -76,7 +76,9 @@ const handler = createHandler({
             // eslint-disable-next-line camelcase
             message.attachments.map(async ({ proxy_url }) => {
               const res = await authedFetch(proxy_url);
-              console.log(res.statusText);
+              if (!res.ok) {
+                throw new Error(await res.text());
+              }
               return res.blob();
             }),
           );
