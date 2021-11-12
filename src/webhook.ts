@@ -32,6 +32,7 @@ export const webhook =
         body: form,
       },
     );
-    console.log(res.statusText);
-    console.log(await res.text());
+    if (!res.ok) {
+      throw new Error(await res.text());
+    }
   };
