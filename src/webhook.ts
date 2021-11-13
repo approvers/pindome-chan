@@ -13,15 +13,19 @@ export const webhook =
   ): Promise<void> => {
     const message = { ...partialMessage };
     const form = new FormData();
-    console.log(files);
+
     for (let idx = 0; idx < files.length; idx += 1) {
       const file = files[idx];
       form.append(`files[${idx}]`, file, `${idx}`);
       message.attachments[idx].id = `${idx}`;
       message.attachments[idx].filename = `${idx}`;
     }
-    console.log(message);
     form.append("payload_json", JSON.stringify(message));
+
+    for (const [key, value] of form.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+
     const res = await fetch(
       [ENDPOINT, "webhooks", webhookId, webhookToken].join("/"),
       {
