@@ -65,6 +65,7 @@ export const webhook =
       },
     );
     if (!res.ok) {
+      console.log(res.statusText);
       throw new Error(await res.text());
     }
   };
