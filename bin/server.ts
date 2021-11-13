@@ -73,13 +73,11 @@ const handler = createHandler({
           const files = await Promise.all(
             message.attachments.map(fetchAttachment),
           );
-          await destination(
-            {
-              ...message,
-              content: `${message.content}\nby ${message.author.username}`,
-            },
+          await destination({
+            ...message,
             files,
-          );
+            content: `${message.content}\nby ${message.author.username}`,
+          });
         } catch (err) {
           console.log(err);
           return errorResponse;
