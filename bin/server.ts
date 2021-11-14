@@ -7,6 +7,7 @@ import {
   PartialMessage,
 } from "../src/types";
 import { createHandler } from "../src/handler";
+import fakeUa from "fake-useragent";
 import { webhook } from "../src/webhook";
 
 declare const APPLICATION_ID: string;
@@ -43,7 +44,11 @@ const buildContent = (message: PartialMessage) => {
 
 // eslint-disable-next-line camelcase
 const fetchAttachment = async ({ proxy_url }: Attachment): Promise<Blob> => {
-  const res = await fetch(proxy_url);
+  const res = await fetch(proxy_url, {
+    headers: {
+      "User-Agent": fakeUa(),
+    },
+  });
   if (!res.ok) {
     console.log(res.statusText);
     throw new Error(await res.text());
