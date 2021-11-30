@@ -42,13 +42,18 @@ const buildContent = (message: PartialMessage) => {
   return content;
 };
 
-// eslint-disable-next-line camelcase
-const fetchAttachment = async ({ proxy_url }: Attachment): Promise<Blob> => {
-  const res = await fetch(proxy_url, {
-    headers: {
-      "User-Agent": fakeUa(),
-    },
-  });
+const fetchAttachment = async ({
+  url,
+  // eslint-disable-next-line camelcase
+  proxy_url,
+}: Attachment): Promise<Blob> => {
+  const fetchFakeUa = (req: string) =>
+    fetch(req, {
+      headers: {
+        "User-Agent": fakeUa(),
+      },
+    });
+  const res = await fetchFakeUa(url).catch(() => fetchFakeUa(proxy_url));
   if (!res.ok) {
     console.log(res.statusText);
     throw new Error(await res.text());
