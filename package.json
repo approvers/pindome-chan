@@ -15,7 +15,6 @@
     "lint:fix": "npm run lint -- --fix"
   },
   "dependencies": {
-    "serverless-cloudflare-workers": "^1.2.0",
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
