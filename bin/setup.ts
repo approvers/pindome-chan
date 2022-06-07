@@ -1,5 +1,5 @@
 import { REST } from "@discordjs/rest";
-import { Routes } from "discord-api-types/v9";
+import { Routes } from "discord-api-types/v10";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -12,7 +12,7 @@ if (!APPLICATION_ID || !GUILD_ID || !DISCORD_TOKEN) {
   );
 }
 
-const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN);
+const rest = new REST({ version: "10" }).setToken(DISCORD_TOKEN);
 
 const commands = [
   {
