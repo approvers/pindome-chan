@@ -18,6 +18,8 @@ const commands = [
   {
     name: "ピン留め",
     type: 3,
+    // eslint-disable-next-line camelcase
+    default_member_permissions: "0",
   },
 ];
 
