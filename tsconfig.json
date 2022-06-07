@@ -3,10 +3,7 @@
     "outDir": "./dist",
     "module": "commonjs",
     "target": "esnext",
-    "lib": [
-      "esnext",
-      "webworker"
-    ],
+    "lib": ["esnext", "webworker"],
     "isolatedModules": false,
     "sourceMap": true,
     "preserveConstEnums": true,
@@ -28,13 +25,6 @@
       "@types/node"
     ]
   },
-  "exclude": [
-    "node_modules",
-    "dist",
-    "test"
-  ],
-  "include": [
-    "**/*.ts",
-    "**/*.tsx"
-  ],
+  "exclude": ["node_modules", "dist", "test"],
+  "include": ["**/*.ts", "**/*.tsx"]
 }
