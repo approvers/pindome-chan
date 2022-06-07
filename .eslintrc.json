@@ -13,9 +13,7 @@
   "parserOptions": {
     "sourceType": "module"
   },
-  "plugins": [
-    "@typescript-eslint"
-  ],
+  "plugins": ["@typescript-eslint"],
   "settings": {
     "react": {
       "version": "detect"
@@ -146,7 +144,6 @@
     "no-script-url": "error",
     "no-self-compare": "error",
     "no-sequences": "error",
-    "no-shadow": "error",
     "no-spaced-func": "error",
     "no-sync": "error",
     "no-tabs": "error",

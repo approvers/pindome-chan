@@ -1,0 +1,17 @@
+name: Lint
+
+on:
+  pull_request:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Lint
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install packages
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Prettier check
+        run: npm run check
