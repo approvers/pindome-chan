@@ -10,7 +10,8 @@
     "build": "webpack",
     "dev": "ts-node bin/server.ts",
     "setup": "ts-node bin/setup.ts",
-    "format": "prettier --write  '*.{json,js}' 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
+    "format": "prettier --ignore-path .gitignore --write '*.{json,js}' 'src/**/*.{js,ts}'",
+    "check": "prettier --ignore-path .gitignore --check '*.{json,js}' 'src/**/*.{js,ts}'",
     "lint": "eslint --ext .ts --ignore-path .gitignore .",
     "lint:fix": "npm run lint -- --fix"
   },
