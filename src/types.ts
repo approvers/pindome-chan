@@ -9,6 +9,7 @@ export interface Attachment {
   proxy_url: string;
   height?: number;
   width?: number;
+  ephemeral?: boolean;
 }
 
 export interface PartialMessage {
