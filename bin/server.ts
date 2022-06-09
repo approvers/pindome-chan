@@ -33,7 +33,7 @@ const handler = createHandler({
         type: ApplicationCommandType.Message,
         name: "ピン留め",
       },
-      (interaction: Interaction) => {
+      async (interaction: Interaction) => {
         if (interaction.type !== InteractionType.ApplicationCommand) {
           return errorResponse;
         }
@@ -43,9 +43,9 @@ const handler = createHandler({
         }
         const [message] = Object.values(messages);
         message.attachments = message.attachments.filter(
-          (attachment) => !attachment.ephemeral,
+          (attachment) => attachment.ephemeral === false,
         );
-        destination({
+        await destination({
           ...message,
           content: `${message.content}\nby ${message.author.username}`,
         });
