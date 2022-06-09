@@ -6,7 +6,9 @@ const ENDPOINT = "https://discord.com/api/v8";
 
 const TOKEN_URL = `${ENDPOINT}/oauth2/token`;
 
-const getAuthorizationCode = async (authedFetch: typeof fetch) => {
+const getAuthorizationCode = async (
+  authedFetch: typeof fetch,
+): Promise<string> => {
   const request = new Request(TOKEN_URL, {
     method: "POST",
     body: new URLSearchParams({
@@ -25,7 +27,7 @@ const getAuthorizationCode = async (authedFetch: typeof fetch) => {
   }
 
   try {
-    const data = await response.json();
+    const data = (await response.json()) as { access_token: string };
     return data.access_token;
   } catch {
     throw new Error("Failed to parse the Authorization code response.");
@@ -45,12 +47,15 @@ const deleteExistingCommands = async (
     "commands",
   ].join("/");
   const response = await authedFetch(url);
-  const commands = await response.json();
+  const commands = (await response.json()) as readonly (ApplicationCommand & {
+    id: string;
+    application_id: string;
+  })[];
 
   await Promise.all(
     commands.map(
       // eslint-disable-next-line camelcase
-      (command: ApplicationCommand & { id: string; application_id: string }) =>
+      (command) =>
         authedFetch(`${url}/${command.id}`, {
           method: "DELETE",
         }),
