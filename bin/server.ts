@@ -53,7 +53,7 @@ const handler = createHandler({
         if (message.content.length !== 0) {
           content += "\n";
           const PREVIEW_LENGTH = 20;
-          content += message.content.substr(0, PREVIEW_LENGTH);
+          content += message.content.substring(0, PREVIEW_LENGTH);
           if (PREVIEW_LENGTH <= message.content.length) {
             content += "...";
           }
