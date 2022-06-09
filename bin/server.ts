@@ -42,6 +42,9 @@ const handler = createHandler({
           return errorResponse;
         }
         const [message] = Object.values(messages);
+        message.attachments = message.attachments.filter(
+          (attachment) => !attachment.ephemeral,
+        );
         destination({
           ...message,
           content: `${message.content}\nby ${message.author.username}`,
