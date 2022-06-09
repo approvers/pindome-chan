@@ -43,7 +43,7 @@ const handler = createHandler({
         }
         const [message] = Object.values(messages);
         message.attachments = message.attachments.filter(
-          (attachment) => !attachment.ephemeral,
+          (attachment) => attachment.ephemeral === false,
         );
         destination({
           ...message,
