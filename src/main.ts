@@ -1,3 +1,4 @@
+import { config } from "../deps.ts";
 import { extractEnv } from "./extract_env.ts";
 import { handleCommand } from "./handle_command.ts";
 import { handleSetup } from "./handle_setup.ts";
@@ -23,7 +24,7 @@ const {
     "REST_PORT",
   ],
   {
-    defaults: { ENVIRONMENT: "dev" },
+    defaults: { ENVIRONMENT: "dev", ...config() },
   },
 );
 const port = parseInt(REST_PORT);
