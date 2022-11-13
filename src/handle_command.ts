@@ -2,6 +2,14 @@ import { Interaction, InteractionHandlers, InteractionType } from "./types.ts";
 
 import { ed } from "../deps.ts";
 
+const HEX_SEGMENT = /.{1,2}/gu;
+
+const fromHexString = (hexString: string) =>
+  new Uint8Array(
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    hexString.match(HEX_SEGMENT)!.map((byte) => parseInt(byte, 16)),
+  );
+
 const invalidRequestResponse = (): Response =>
   new Response(null, { status: 401 });
 
@@ -17,7 +25,11 @@ const verifyRequest = async (
   }
 
   const body = await request.text();
-  return ed.verify(signature, timestamp + body, publicKey);
+  return ed.verify(
+    fromHexString(signature),
+    new TextEncoder().encode(timestamp + body),
+    fromHexString(publicKey),
+  );
 };
 
 const jsonResponse = (data: unknown) =>
