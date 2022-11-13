@@ -114,6 +114,8 @@ export const handleSetup = async (
     guildId: string;
   },
 ): Promise<void> => {
+  console.info("started to setup");
+
   const basicHeaders = authorizationHeaders({
     username: applicationId,
     password: applicationSecret,

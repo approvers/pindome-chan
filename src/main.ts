@@ -44,10 +44,7 @@ const handleRequest = (req: Deno.RequestEvent): Promise<void> => {
       commands,
     });
   }
-  if (
-    req.request.method === "POST" &&
-    new URL(req.request.url).pathname === "/"
-  ) {
+  if (req.request.method === "POST") {
     return handleCommand({ req, publicKey: PUBLIC_KEY, commands });
   }
   return req.respondWith(new Response(null, { status: 401 }));

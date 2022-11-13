@@ -22,20 +22,25 @@ const invalidRequestResponse = (): Response =>
 const verifyRequest = async (
   request: Request,
   publicKey: string,
-): Promise<boolean> => {
+): Promise<Interaction | undefined> => {
   const signature = request.headers.get("X-Signature-Ed25519");
   const timestamp = request.headers.get("X-Signature-Timestamp");
 
   if (!signature || !timestamp) {
-    return false;
+    return undefined;
   }
 
   const body = await request.text();
-  return ed.verify(
-    fromHexString(signature),
-    new TextEncoder().encode(timestamp + body),
-    fromHexString(publicKey),
-  );
+  if (
+    await ed.verify(
+      fromHexString(signature),
+      new TextEncoder().encode(timestamp + body),
+      fromHexString(publicKey),
+    )
+  ) {
+    return JSON.parse(body) as Interaction;
+  }
+  return undefined;
 };
 
 const jsonResponse = (data: InteractionResponse): Response =>
@@ -71,17 +76,19 @@ export const handleCommand = async ({ req, publicKey, commands }: {
   publicKey: string;
   commands: InteractionHandlers;
 }): Promise<void> => {
-  if (!verifyRequest(req.request, publicKey)) {
+  const interaction = await verifyRequest(req.request, publicKey);
+  if (!interaction) {
+    console.info("failed to verify with: ", req.request.headers);
     await req.respondWith(invalidRequestResponse());
     return;
   }
 
+  console.log(interaction);
   try {
-    const interaction = (await req.request.json()) as Interaction;
-
     const response = makeCommandResponse({ interaction, commands });
     return req.respondWith(response);
-  } catch {
+  } catch (error) {
+    console.error(error);
     return req.respondWith(invalidRequestResponse());
   }
 };
