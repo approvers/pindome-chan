@@ -11,7 +11,6 @@ const {
   DISCORD_WEBHOOK_ID,
   APPLICATION_SECRET,
   DISCORD_WEBHOOK_TOKEN,
-  REST_PORT,
 } = extractEnv(
   [
     "ENVIRONMENT",
@@ -21,16 +20,11 @@ const {
     "DISCORD_WEBHOOK_ID",
     "APPLICATION_SECRET",
     "DISCORD_WEBHOOK_TOKEN",
-    "REST_PORT",
   ],
   {
     defaults: { ENVIRONMENT: "dev", ...config() },
   },
 );
-const port = parseInt(REST_PORT);
-if (Number.isNaN(port)) {
-  throw new Error("expected a number at `REST_PORT`");
-}
 
 const commands = makeCommands({
   webhookId: DISCORD_WEBHOOK_ID,
@@ -54,8 +48,7 @@ const handleRequest = (req: Deno.RequestEvent): Promise<void> => {
   return handleCommand({ req, publicKey: PUBLIC_KEY, commands });
 };
 
-const server = Deno.listen({ port });
-console.info(`Server is awaiting at http://localhost:${REST_PORT}`);
+const server = Deno.listen({ port: 80 });
 
 for await (const conn of server) {
   const http = Deno.serveHttp(conn);
