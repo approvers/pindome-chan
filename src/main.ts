@@ -44,8 +44,13 @@ const handleRequest = (req: Deno.RequestEvent): Promise<void> => {
       commands,
     });
   }
-
-  return handleCommand({ req, publicKey: PUBLIC_KEY, commands });
+  if (
+    req.request.method === "POST" &&
+    new URL(req.request.url).pathname === "/"
+  ) {
+    return handleCommand({ req, publicKey: PUBLIC_KEY, commands });
+  }
+  return req.respondWith(new Response(null, { status: 401 }));
 };
 
 const server = Deno.listen({ port: 80 });

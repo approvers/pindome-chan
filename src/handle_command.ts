@@ -1,4 +1,10 @@
-import { Interaction, InteractionHandlers, InteractionType } from "./types.ts";
+import {
+  Interaction,
+  InteractionHandlers,
+  InteractionResponse,
+  InteractionResponseType,
+  InteractionType,
+} from "./types.ts";
 
 import { ed } from "../deps.ts";
 
@@ -32,7 +38,7 @@ const verifyRequest = async (
   );
 };
 
-const jsonResponse = (data: unknown) =>
+const jsonResponse = (data: InteractionResponse): Response =>
   new Response(JSON.stringify(data), {
     headers: { "Content-Type": "application/json" },
   });
@@ -45,7 +51,7 @@ const makeCommandResponse = async (
 ): Promise<Response> => {
   switch (interaction.type) {
     case InteractionType.Ping:
-      return jsonResponse({ type: 1 });
+      return jsonResponse({ type: InteractionResponseType.Pong });
 
     case InteractionType.ApplicationCommand: {
       const found = commands.find(
