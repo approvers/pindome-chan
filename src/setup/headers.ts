@@ -1,18 +1,15 @@
-import { addHeaders } from "./add-headers";
-
 export type AuthorizationOptions =
   | {
-      username?: string;
-      password?: string;
-    }
+    username?: string;
+    password?: string;
+  }
   | {
-      bearer: string;
-    };
+    bearer: string;
+  };
 
-export const authorization = (
-  prevFetch: typeof fetch,
+export const authorizationHeaders = (
   options: AuthorizationOptions,
-): typeof fetch => {
+): Headers => {
   let authKey;
   if ("username" in options || "password" in options) {
     const basicAuth = btoa(
@@ -25,7 +22,5 @@ export const authorization = (
     throw new Error("invalid options");
   }
 
-  return addHeaders(prevFetch, {
-    headers: { Authorization: authKey },
-  });
+  return new Headers({ Authorization: authKey });
 };

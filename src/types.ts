@@ -1,5 +1,7 @@
 /* eslint-disable camelcase */
 
+export const ENDPOINT = "https://discord.com/api/v8";
+
 export interface Attachment {
   id: Snowflake;
   filename: string;
@@ -123,23 +125,25 @@ export interface GuildMember {
   };
 }
 
-export type Interaction = {
-  id: Snowflake;
-  guild_id: Snowflake;
-  channel_id: Snowflake;
-  member: GuildMember;
-  token: string;
-  version: number;
-} & (
-  | {
+export type Interaction =
+  & {
+    id: Snowflake;
+    guild_id: Snowflake;
+    channel_id: Snowflake;
+    member: GuildMember;
+    token: string;
+    version: number;
+  }
+  & (
+    | {
       type: InteractionType.Ping;
       data: undefined;
     }
-  | {
+    | {
       type: InteractionType.ApplicationCommand;
       data: ApplicationCommandData;
     }
-);
+  );
 
 export enum InteractionResponseType {
   Pong = 1,
@@ -246,3 +250,8 @@ export interface InteractionResponse {
 export type InteractionHandler = (
   interaction: Interaction,
 ) => Promise<InteractionResponse> | InteractionResponse;
+
+export type InteractionHandlers = readonly [
+  ApplicationCommand,
+  InteractionHandler,
+][];
