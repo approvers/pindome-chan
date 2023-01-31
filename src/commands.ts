@@ -61,7 +61,7 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
         "payload_json",
         JSON.stringify({
           ...message,
-          content: `${message.content}\nby ${message.author.username}`,
+          content: `${message.content}\nby ${message.author.username}`.trim(),
           allowed_mentions: false,
           attachments: message.attachments.map((attachment, index) => ({
             id: index,
