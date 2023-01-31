@@ -19,6 +19,8 @@ export interface WebhookOptions {
   webhookToken: string;
 }
 
+const USER_AGENT = "pindome-chan Bot (https://github.com/approvers/pindome-chan)";
+
 const sendWebhook = async (
   message: FormData,
   { webhookId, webhookToken }: WebhookOptions,
@@ -28,6 +30,7 @@ const sendWebhook = async (
     {
       headers: {
         "Content-Type": "multipart/form-data",
+        "User-Agent": USER_AGENT,
       },
       method: "POST",
       body: message,
