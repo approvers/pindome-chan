@@ -25,6 +25,7 @@ const sendWebhook = async (
   message: FormData,
   { webhookId, webhookToken }: WebhookOptions,
 ): Promise<void> => {
+  message.forEach(console.log); // TODO: remove
   const res = await fetch(
     [ENDPOINT, "webhooks", webhookId, webhookToken].join("/"),
     {
