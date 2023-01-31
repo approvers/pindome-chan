@@ -19,7 +19,8 @@ export interface WebhookOptions {
   webhookToken: string;
 }
 
-const USER_AGENT = "pindome-chan Bot (https://github.com/approvers/pindome-chan)";
+const USER_AGENT =
+  "pindome-chan Bot (https://github.com/approvers/pindome-chan)";
 
 const sendWebhook = async (
   message: FormData,
@@ -59,16 +60,18 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
       const form = new FormData();
       form.append(
         "payload_json",
-        JSON.stringify({
+        new Blob([JSON.stringify({
           content: `${message.content}\nby ${message.author.username}`.trim(),
           allowed_mentions: false,
           message_reference: {
-            message_id: message.id
+            message_id: message.id,
           },
           attachments: message.attachments.map((attachment, index) => ({
             id: index,
             filename: attachment.filename,
           })),
+        })], {
+          type: "application/json",
         }),
       );
       await Promise.all(message.attachments.map(async (attachment, index) => {
