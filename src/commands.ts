@@ -58,10 +58,10 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
       const [message] = Object.values(messages);
       console.log(message);
       const form = new FormData();
+      form.append("content", `${message.content}\nby ${message.author.username}`.trim());
       form.append(
         "payload_json",
         new Blob([JSON.stringify({
-          content: `${message.content}\nby ${message.author.username}`.trim(),
           allowed_mentions: false,
           message_reference: {
             message_id: message.id,
