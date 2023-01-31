@@ -73,7 +73,7 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
         if (UPLOAD_SIZE_LIMIT < blob.size) {
           return errorResponse("アップロード上限を超えているから");
         }
-        form.append(`files[${index}]`, blob, attachment.filename);
+        form.append(`file${index}`, blob, attachment.filename);
       }));
       await sendWebhook(form, options);
 
