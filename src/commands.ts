@@ -60,18 +60,20 @@ const sendWebhook = async (
   );
   if (!res.ok) {
     console.error(await res.text());
-    await sendFollowup({
+    const followupRes = await sendFollowup({
       applicationId,
       interactionToken,
       content: "ピン留めに失敗しちゃった……",
     });
+    console.log(await followupRes.text());
     return;
   }
-  await sendFollowup({
+  const followupRes = await sendFollowup({
     applicationId,
     interactionToken,
     content: "ピン留めできたよ！",
   });
+  console.log(await followupRes.text());
 };
 
 export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
