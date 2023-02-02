@@ -26,7 +26,6 @@ const sendWebhook = async (
   message: FormData,
   { webhookId, webhookToken }: WebhookOptions,
 ): Promise<void> => {
-  message.forEach((value, key) => console.log(key, value)); // TODO: remove
   const res = await fetch(
     [ENDPOINT, "webhooks", webhookId, webhookToken].join("/"),
     {
@@ -37,7 +36,9 @@ const sendWebhook = async (
       body: message,
     },
   );
-  console.log(await res.text());
+  if (!res.ok) {
+    throw new Error(await res.text());
+  }
 };
 
 export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
@@ -55,7 +56,6 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
         return errorResponse("間に合わなかったから");
       }
       const [message] = Object.values(messages);
-      console.log(message);
       const form = new FormData();
       form.append("content", `${message.content}\nby ${message.author.username}`.trim());
       form.append(
@@ -83,7 +83,12 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
         }
         form.append(`files[${index}]`, blob, attachment.filename);
       }));
-      await sendWebhook(form, options);
+      try {
+        await sendWebhook(form, options);
+      } catch (err) {
+        console.error(err);
+        return errorResponse("ウェブフックの送信に失敗したから");
+      }
 
       let content = "ピン留めしましたっ！";
       if (message.content.length !== 0) {
