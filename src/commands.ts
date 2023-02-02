@@ -59,7 +59,7 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
       const form = new FormData();
       form.append(
         "payload_json",
-        new Blob([JSON.stringify({
+        JSON.stringify({
           allowed_mentions: false,
           message_reference: {
             message_id: message.id,
@@ -68,8 +68,6 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
             id: index,
             filename: attachment.filename,
           })),
-        })], {
-          type: "application/json",
         }),
       );
       await Promise.all(message.attachments.map(async (attachment, index) => {
