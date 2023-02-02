@@ -14,7 +14,30 @@ const errorResponse = (reason: string) => ({
   },
 });
 
+const sendFollowup = (
+  { applicationId, interactionToken, content }: {
+    applicationId: string;
+    interactionToken: string;
+    content: string;
+  },
+) =>
+  fetch(
+    [
+      ENDPOINT,
+      "webhooks",
+      applicationId,
+      interactionToken,
+      "messages",
+      "@original",
+    ].join("/"),
+    {
+      method: "PATCH",
+      body: JSON.stringify({ content }),
+    },
+  );
+
 export interface WebhookOptions {
+  applicationId: string;
   webhookId: string;
   webhookToken: string;
 }
@@ -24,7 +47,8 @@ const USER_AGENT =
 
 const sendWebhook = async (
   message: FormData,
-  { webhookId, webhookToken }: WebhookOptions,
+  interactionToken: string,
+  { applicationId, webhookId, webhookToken }: WebhookOptions,
 ): Promise<void> => {
   const res = await fetch(
     [ENDPOINT, "webhooks", webhookId, webhookToken].join("/"),
@@ -37,8 +61,19 @@ const sendWebhook = async (
     },
   );
   if (!res.ok) {
-    throw new Error(await res.text());
+    console.error(await res.text());
+    await sendFollowup({
+      applicationId,
+      interactionToken,
+      content: "ピン留めに失敗しちゃった……",
+    });
+    return;
   }
+  await sendFollowup({
+    applicationId,
+    interactionToken,
+    content: "ピン留めできたよ！",
+  });
 };
 
 export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
@@ -82,12 +117,7 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
         }
         form.append(`files[${index}]`, blob, attachment.filename);
       }));
-      try {
-        await sendWebhook(form, options);
-      } catch (err) {
-        console.error(err);
-        return errorResponse("ウェブフックの送信に失敗したから");
-      }
+      void sendWebhook(form, interaction.token, options);
 
       let content = "ピン留めしましたっ！";
       if (message.content.length !== 0) {
@@ -99,7 +129,7 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
         }
       }
       return {
-        type: InteractionResponseType.ChannelMessageWithSource,
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
         data: {
           content,
         },

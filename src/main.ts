@@ -27,6 +27,7 @@ const {
 );
 
 const commands = makeCommands({
+  applicationId: APPLICATION_ID,
   webhookId: DISCORD_WEBHOOK_ID,
   webhookToken: DISCORD_WEBHOOK_TOKEN,
 });
