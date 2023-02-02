@@ -14,7 +14,31 @@ const errorResponse = (reason: string) => ({
   },
 });
 
+const sendFollowup = (
+  { applicationId, interactionToken, content }: {
+    applicationId: string;
+    interactionToken: string;
+    content: string;
+  },
+) =>
+  fetch(
+    [
+      ENDPOINT,
+      "webhooks",
+      applicationId,
+      interactionToken,
+    ].join("/"),
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content }),
+    },
+  );
+
 export interface WebhookOptions {
+  applicationId: string;
   webhookId: string;
   webhookToken: string;
 }
@@ -23,8 +47,12 @@ const USER_AGENT =
   "pindome-chan Bot (https://github.com/approvers/pindome-chan)";
 
 const sendWebhook = async (
-  message: FormData,
-  { webhookId, webhookToken }: WebhookOptions,
+  { previewContent, message, interactionToken }: {
+    previewContent: string;
+    message: FormData;
+    interactionToken: string;
+  },
+  { applicationId, webhookId, webhookToken }: WebhookOptions,
 ): Promise<void> => {
   const res = await fetch(
     [ENDPOINT, "webhooks", webhookId, webhookToken].join("/"),
@@ -37,8 +65,21 @@ const sendWebhook = async (
     },
   );
   if (!res.ok) {
-    throw new Error(await res.text());
+    console.error(await res.text());
+    const followupRes = await sendFollowup({
+      applicationId,
+      interactionToken,
+      content: "ピン留めに失敗しちゃった……",
+    });
+    console.log(await followupRes.text());
+    return;
   }
+  const followupRes = await sendFollowup({
+    applicationId,
+    interactionToken,
+    content: `ピン留めできたよ！\n${previewContent}`,
+  });
+  console.log(await followupRes.text());
 };
 
 export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
@@ -82,27 +123,24 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
         }
         form.append(`files[${index}]`, blob, attachment.filename);
       }));
-      try {
-        await sendWebhook(form, options);
-      } catch (err) {
-        console.error(err);
-        return errorResponse("ウェブフックの送信に失敗したから");
-      }
 
-      let content = "ピン留めしましたっ！";
+      let previewContent = "";
       if (message.content.length !== 0) {
-        content += "\n";
         const PREVIEW_LENGTH = 20;
-        content += message.content.substring(0, PREVIEW_LENGTH);
+        previewContent += message.content.substring(0, PREVIEW_LENGTH);
         if (PREVIEW_LENGTH <= message.content.length) {
-          content += "...";
+          previewContent += "...";
         }
       }
+
+      void sendWebhook({
+        previewContent,
+        message: form,
+        interactionToken: interaction.token,
+      }, options);
+
       return {
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          content,
-        },
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
       };
     },
   ],

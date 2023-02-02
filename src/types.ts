@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 
-export const ENDPOINT = "https://discord.com/api/v8";
+export const ENDPOINT = "https://discord.com/api/v10";
 
 export interface Attachment {
   id: Snowflake;
