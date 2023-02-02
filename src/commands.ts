@@ -31,7 +31,6 @@ const sendWebhook = async (
     [ENDPOINT, "webhooks", webhookId, webhookToken].join("/"),
     {
       headers: {
-        "Content-Type": "multipart/form-data",
         "User-Agent": USER_AGENT,
       },
       method: "POST",
