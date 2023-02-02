@@ -60,6 +60,7 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
       form.append(
         "payload_json",
         JSON.stringify({
+          ...message,
           allowed_mentions: false,
           message_reference: {
             message_id: message.id,
