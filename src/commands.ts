@@ -31,7 +31,7 @@ const sendFollowup = (
     {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ content }),
     },
@@ -47,8 +47,11 @@ const USER_AGENT =
   "pindome-chan Bot (https://github.com/approvers/pindome-chan)";
 
 const sendWebhook = async (
-  message: FormData,
-  interactionToken: string,
+  { previewContent, message, interactionToken }: {
+    previewContent: string;
+    message: FormData;
+    interactionToken: string;
+  },
   { applicationId, webhookId, webhookToken }: WebhookOptions,
 ): Promise<void> => {
   const res = await fetch(
@@ -74,7 +77,7 @@ const sendWebhook = async (
   const followupRes = await sendFollowup({
     applicationId,
     interactionToken,
-    content: "ピン留めできたよ！",
+    content: `ピン留めできたよ！\n${previewContent}`,
   });
   console.log(await followupRes.text());
 };
@@ -120,22 +123,24 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
         }
         form.append(`files[${index}]`, blob, attachment.filename);
       }));
-      void sendWebhook(form, interaction.token, options);
 
-      let content = "ピン留めしましたっ！";
+      let previewContent = "";
       if (message.content.length !== 0) {
-        content += "\n";
         const PREVIEW_LENGTH = 20;
-        content += message.content.substring(0, PREVIEW_LENGTH);
+        previewContent += message.content.substring(0, PREVIEW_LENGTH);
         if (PREVIEW_LENGTH <= message.content.length) {
-          content += "...";
+          previewContent += "...";
         }
       }
+
+      void sendWebhook({
+        previewContent,
+        message: form,
+        interactionToken: interaction.token,
+      }, options);
+
       return {
         type: InteractionResponseType.DeferredChannelMessageWithSource,
-        data: {
-          content,
-        },
       };
     },
   ],
