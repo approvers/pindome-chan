@@ -27,11 +27,9 @@ const sendFollowup = (
       "webhooks",
       applicationId,
       interactionToken,
-      "messages",
-      "@original",
     ].join("/"),
     {
-      method: "PATCH",
+      method: "POST",
       body: JSON.stringify({ content }),
     },
   );
