@@ -1,4 +1,4 @@
-import { config } from "../deps.ts";
+import { load } from "dotenv";
 import { extractEnv } from "./extract_env.ts";
 import { handleCommand } from "./handle_command.ts";
 import { handleSetup } from "./handle_setup.ts";
@@ -22,7 +22,7 @@ const {
     "DISCORD_WEBHOOK_TOKEN",
   ],
   {
-    defaults: { ENVIRONMENT: "dev", ...config() },
+    defaults: { ENVIRONMENT: "dev", ...await load() },
   },
 );
 

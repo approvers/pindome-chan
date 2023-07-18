@@ -1,0 +1,13 @@
+{
+    "imports": {
+        "crypto": "https://deno.land/std@0.194.0/node/crypto.ts",
+        "dotenv": "https://deno.land/std@0.194.0/dotenv/mod.ts",
+        "ed25519": "https://deno.land/x/ed25519@2.0.0/mod.ts"
+    },
+    "tasks": {
+        "dev": "deno run -A src/main.ts"
+    },
+    "compilerOptions": {
+        "strict": true
+    }
+}

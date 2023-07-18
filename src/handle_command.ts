@@ -6,7 +6,7 @@ import {
   InteractionType,
 } from "./types.ts";
 
-import { ed } from "../deps.ts";
+import * as ed from "ed25519";
 
 const HEX_SEGMENT = /.{1,2}/gu;
 
