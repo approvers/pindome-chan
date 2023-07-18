@@ -14,7 +14,7 @@ jobs:
           deno-version: v1.x
       - name: Deno check
         run: |
-          deno check --import-map=imports.json src/main.ts
+          deno check src/main.ts
       - name: Deno lint
         run: |
           deno lint

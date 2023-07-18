@@ -20,4 +20,3 @@ jobs:
         with:
           project: pindome-chan
           entrypoint: src/main.ts
-          import-map: imports.json
