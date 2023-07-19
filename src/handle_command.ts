@@ -6,7 +6,7 @@ import {
   InteractionType,
 } from "./types.ts";
 
-import { verify } from "ed25519";
+import { verifyAsync } from "ed25519";
 
 const HEX_SEGMENT = /.{1,2}/gu;
 
@@ -32,7 +32,7 @@ const verifyRequest = async (
 
   const body = await request.text();
   if (
-    verify(
+    await verifyAsync(
       fromHexString(signature),
       new TextEncoder().encode(timestamp + body),
       fromHexString(publicKey),
