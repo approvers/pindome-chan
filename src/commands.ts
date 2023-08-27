@@ -82,6 +82,44 @@ const sendWebhook = async (
   console.log(await followupRes.text());
 };
 
+const cutContent = (content: string): string => {
+  const spoilerMarks = [];
+  const spoilerSpans: [number, number][] = [];
+  const chars = [...content];
+  let isInCodeBlock = false;
+  for (let i = 0; i < chars.length - 1; ++i) {
+    if (chars[i] === "|" && chars[i + 1] === "|" && !isInCodeBlock) {
+      const start = spoilerMarks.pop();
+      if (start !== undefined) {
+        spoilerSpans.push([start, i + 2]);
+      } else {
+        spoilerMarks.push(i);
+      }
+      ++i;
+    }
+    if (chars[i] === '`' && chars[i + 1] === '`' && chars[i + 2] === '`' && chars[i + 3] === '\n') {
+      isInCodeBlock = !isInCodeBlock;
+      if (isInCodeBlock) {
+        spoilerMarks.pop();
+      }
+      i += 3;
+    }
+  }
+
+  const PREVIEW_LENGTH = 20;
+  const isCuttingSpoiler = spoilerSpans.some(([start, end]) => start <= PREVIEW_LENGTH && PREVIEW_LENGTH < end);
+
+  let cut = "";
+  cut += content.substring(0, PREVIEW_LENGTH);
+  if (isCuttingSpoiler) {
+    cut += "||";
+  }
+  if (PREVIEW_LENGTH <= content.length) {
+    cut += "...";
+  }
+  return cut;
+};
+
 export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
   [
     {
@@ -128,11 +166,7 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
 
       let previewContent = "";
       if (message.content.length !== 0) {
-        const PREVIEW_LENGTH = 20;
-        previewContent += message.content.substring(0, PREVIEW_LENGTH);
-        if (PREVIEW_LENGTH <= message.content.length) {
-          previewContent += "...";
-        }
+        previewContent += cutContent(message.content);
       }
 
       void sendWebhook({
