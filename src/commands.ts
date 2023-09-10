@@ -14,7 +14,31 @@ const errorResponse = (reason: string) => ({
   },
 });
 
-const sendFollowup = (
+const sendResponse = (
+  { interactionId, interactionToken, content }: {
+    interactionId: string;
+    interactionToken: string;
+    content: string;
+  },
+) =>
+  fetch(
+    [
+      ENDPOINT,
+      "interactions",
+      interactionId,
+      interactionToken,
+      "callback",
+    ].join("/"),
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content }),
+    },
+  );
+
+const editSentResponse = (
   { applicationId, interactionToken, content }: {
     applicationId: string;
     interactionToken: string;
@@ -27,9 +51,11 @@ const sendFollowup = (
       "webhooks",
       applicationId,
       interactionToken,
+      "messages",
+      "@original",
     ].join("/"),
     {
-      method: "POST",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
@@ -47,13 +73,19 @@ const USER_AGENT =
   "pindome-chan Bot (https://github.com/approvers/pindome-chan)";
 
 const sendWebhook = async (
-  { previewContent, message, interactionToken }: {
+  { previewContent, message, interactionId, interactionToken }: {
     previewContent: string;
     message: FormData;
+    interactionId: string;
     interactionToken: string;
   },
   { applicationId, webhookId, webhookToken }: WebhookOptions,
 ): Promise<void> => {
+  await sendResponse({
+    interactionId,
+    interactionToken,
+    content: "ピン留め中…",
+  });
   const res = await fetch(
     [ENDPOINT, "webhooks", webhookId, webhookToken].join("/"),
     {
@@ -64,9 +96,9 @@ const sendWebhook = async (
       body: message,
     },
   );
-  if (!res.ok) {
-    console.error(await res.text());
-    const followupRes = await sendFollowup({
+  if (!res || !res.ok) {
+    console.error(await res?.text());
+    const followupRes = await editSentResponse({
       applicationId,
       interactionToken,
       content: "ピン留めに失敗しちゃった……",
@@ -74,7 +106,7 @@ const sendWebhook = async (
     console.log(await followupRes.text());
     return;
   }
-  const followupRes = await sendFollowup({
+  const followupRes = await editSentResponse({
     applicationId,
     interactionToken,
     content: `ピン留めできたよ！\n${previewContent}`,
@@ -97,7 +129,10 @@ const cutContent = (content: string): string => {
       }
       ++i;
     }
-    if (chars[i] === '`' && chars[i + 1] === '`' && chars[i + 2] === '`' && chars[i + 3] === '\n') {
+    if (
+      chars[i] === "`" && chars[i + 1] === "`" && chars[i + 2] === "`" &&
+      chars[i + 3] === "\n"
+    ) {
       isInCodeBlock = !isInCodeBlock;
       if (isInCodeBlock) {
         spoilerMarks.pop();
@@ -107,7 +142,9 @@ const cutContent = (content: string): string => {
   }
 
   const PREVIEW_LENGTH = 20;
-  const isCuttingSpoiler = spoilerSpans.some(([start, end]) => start <= PREVIEW_LENGTH && PREVIEW_LENGTH < end);
+  const isCuttingSpoiler = spoilerSpans.some(([start, end]) =>
+    start <= PREVIEW_LENGTH && PREVIEW_LENGTH < end
+  );
 
   let cut = "";
   cut += content.substring(0, PREVIEW_LENGTH);
@@ -172,6 +209,7 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
       void sendWebhook({
         previewContent,
         message: form,
+        interactionId: interaction.id,
         interactionToken: interaction.token,
       }, options);
 
