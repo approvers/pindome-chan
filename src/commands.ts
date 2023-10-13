@@ -5,6 +5,7 @@ import {
   InteractionHandlers,
   InteractionResponseType,
   InteractionType,
+  PartialMessage,
 } from "./types.ts";
 
 const errorResponse = (reason: string) => ({
@@ -157,13 +158,61 @@ const cutContent = (content: string): string => {
   return cut;
 };
 
+async function pinMessage(
+  message: PartialMessage,
+  interaction: Interaction,
+  options: WebhookOptions,
+) {
+  const form = new FormData();
+  form.append(
+    "payload_json",
+    JSON.stringify({
+      ...message,
+      content: `${message.content}\nby ${message.author.username}`.trim(),
+      allowed_mentions: {
+        parse: [],
+      },
+      message_reference: {
+        message_id: message.id,
+      },
+      attachments: message.attachments.map((attachment, index) => ({
+        id: index,
+        filename: attachment.filename,
+      })),
+    }),
+  );
+  for (let index = 0; index < message.attachments.length; ++index) {
+    const attachment = message.attachments[index];
+    const res = await fetch(attachment.url);
+    const blob = await res.blob();
+
+    const UPLOAD_SIZE_LIMIT = 8 * 1024 * 1024;
+    if (UPLOAD_SIZE_LIMIT < blob.size) {
+      return errorResponse("アップロード上限を超えているから");
+    }
+    form.append(`files[${index}]`, blob, attachment.filename);
+  }
+
+  let previewContent = "";
+  if (message.content.length !== 0) {
+    previewContent += cutContent(message.content);
+  }
+
+  await sendWebhook({
+    previewContent,
+    message: form,
+    interactionId: interaction.id,
+    interactionToken: interaction.token,
+  }, options);
+}
+
 export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
   [
     {
       type: ApplicationCommandType.Message,
       name: "ピン留め",
     },
-    async (interaction: Interaction) => {
+    (interaction: Interaction) => {
       if (interaction.type !== InteractionType.ApplicationCommand) {
         return errorResponse("コマンドの種類が違うから");
       }
@@ -172,46 +221,7 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
         return errorResponse("間に合わなかったから");
       }
       const [message] = Object.values(messages);
-      const form = new FormData();
-      form.append(
-        "payload_json",
-        JSON.stringify({
-          ...message,
-          content: `${message.content}\nby ${message.author.username}`.trim(),
-          allowed_mentions: {
-            parse: [],
-          },
-          message_reference: {
-            message_id: message.id,
-          },
-          attachments: message.attachments.map((attachment, index) => ({
-            id: index,
-            filename: attachment.filename,
-          })),
-        }),
-      );
-      await Promise.all(message.attachments.map(async (attachment, index) => {
-        const res = await fetch(attachment.url);
-        const blob = await res.blob();
-
-        const UPLOAD_SIZE_LIMIT = 8 * 1024 * 1024;
-        if (UPLOAD_SIZE_LIMIT < blob.size) {
-          return errorResponse("アップロード上限を超えているから");
-        }
-        form.append(`files[${index}]`, blob, attachment.filename);
-      }));
-
-      let previewContent = "";
-      if (message.content.length !== 0) {
-        previewContent += cutContent(message.content);
-      }
-
-      void sendWebhook({
-        previewContent,
-        message: form,
-        interactionId: interaction.id,
-        interactionToken: interaction.token,
-      }, options);
+      void pinMessage(message, interaction, options);
 
       return {
         type: InteractionResponseType.DeferredChannelMessageWithSource,
