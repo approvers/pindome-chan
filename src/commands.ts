@@ -40,12 +40,12 @@ const sendResponse = (
   );
 
 const editSentResponse = (
-  { applicationId, interactionToken, content }: {
+  { applicationId, interactionToken }: {
     applicationId: string;
     interactionToken: string;
-    content: string;
   },
 ) =>
+(content: string) =>
   fetch(
     [
       ENDPOINT,
@@ -73,21 +73,11 @@ export interface WebhookOptions {
 const USER_AGENT =
   "pindome-chan Bot (https://github.com/approvers/pindome-chan)";
 
-const sendWebhook = async (
-  { previewContent, message, interactionId, interactionToken }: {
-    previewContent: string;
-    message: FormData;
-    interactionId: string;
-    interactionToken: string;
-  },
-  { applicationId, webhookId, webhookToken }: WebhookOptions,
-): Promise<void> => {
-  await sendResponse({
-    interactionId,
-    interactionToken,
-    content: "ピン留め中…",
-  });
-  const res = await fetch(
+const sendWebhook = (
+  message: FormData,
+  { webhookId, webhookToken }: WebhookOptions,
+): Promise<Response> =>
+  fetch(
     [ENDPOINT, "webhooks", webhookId, webhookToken].join("/"),
     {
       headers: {
@@ -97,23 +87,6 @@ const sendWebhook = async (
       body: message,
     },
   );
-  if (!res || !res.ok) {
-    console.error(await res?.text());
-    const followupRes = await editSentResponse({
-      applicationId,
-      interactionToken,
-      content: "ピン留めに失敗しちゃった……",
-    });
-    console.log(await followupRes.text());
-    return;
-  }
-  const followupRes = await editSentResponse({
-    applicationId,
-    interactionToken,
-    content: `ピン留めできたよ！\n${previewContent}`,
-  });
-  console.log(await followupRes.text());
-};
 
 const cutContent = (content: string): string => {
   const spoilerMarks = [];
@@ -163,6 +136,16 @@ async function pinMessage(
   interaction: Interaction,
   options: WebhookOptions,
 ) {
+  await sendResponse({
+    interactionId: interaction.id,
+    interactionToken: interaction.token,
+    content: "ピン留め中…",
+  });
+  const editSent = editSentResponse({
+    applicationId: options.applicationId,
+    interactionToken: interaction.token,
+  });
+
   const form = new FormData();
   form.append(
     "payload_json",
@@ -188,7 +171,10 @@ async function pinMessage(
 
     const UPLOAD_SIZE_LIMIT = 8 * 1024 * 1024;
     if (UPLOAD_SIZE_LIMIT < blob.size) {
-      return errorResponse("アップロード上限を超えているから");
+      await editSent(
+        "アップロード上限を超えているから、ピン留めできないみたいです…",
+      );
+      return;
     }
     form.append(`files[${index}]`, blob, attachment.filename);
   }
@@ -198,12 +184,16 @@ async function pinMessage(
     previewContent += cutContent(message.content);
   }
 
-  await sendWebhook({
-    previewContent,
-    message: form,
-    interactionId: interaction.id,
-    interactionToken: interaction.token,
-  }, options);
+  const res = await sendWebhook(form, options);
+
+  if (!res || !res.ok) {
+    console.error(await res?.text());
+    const followupRes = await editSent("ピン留めに失敗しちゃった……");
+    console.log(await followupRes.text());
+    return;
+  }
+  const followupRes = await editSent(`ピン留めできたよ！\n${previewContent}`);
+  console.log(await followupRes.text());
 }
 
 export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
