@@ -187,8 +187,8 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
       return {
         type: InteractionResponseType.DeferredChannelMessageWithSource,
         data: {
-          content: "ピン留め中…"
-        }
+          content: "ピン留め中…",
+        },
       };
     },
   ],
