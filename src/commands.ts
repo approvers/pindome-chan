@@ -15,30 +15,6 @@ const errorResponse = (reason: string) => ({
   },
 });
 
-const sendResponse = (
-  { interactionId, interactionToken, content }: {
-    interactionId: string;
-    interactionToken: string;
-    content: string;
-  },
-) =>
-  fetch(
-    [
-      ENDPOINT,
-      "interactions",
-      interactionId,
-      interactionToken,
-      "callback",
-    ].join("/"),
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ content }),
-    },
-  );
-
 const editSentResponse = (
   { applicationId, interactionToken }: {
     applicationId: string;
@@ -136,11 +112,6 @@ async function pinMessage(
   interaction: Interaction,
   options: WebhookOptions,
 ) {
-  await sendResponse({
-    interactionId: interaction.id,
-    interactionToken: interaction.token,
-    content: "ピン留め中…",
-  });
   const editSent = editSentResponse({
     applicationId: options.applicationId,
     interactionToken: interaction.token,
@@ -215,6 +186,9 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
 
       return {
         type: InteractionResponseType.DeferredChannelMessageWithSource,
+        data: {
+          content: "ピン留め中…"
+        }
       };
     },
   ],
