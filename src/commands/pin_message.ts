@@ -6,7 +6,7 @@ const editSentResponse = (
     interactionToken: string;
   },
 ) =>
-(content: string) =>
+(content: string): Promise<Response> =>
   fetch(
     [
       ENDPOINT,
@@ -92,17 +92,50 @@ const cutContent = (content: string): string => {
   return cut;
 };
 
-export async function pinMessage(
+const makeFormData = async (
   message: PartialMessage,
-  interaction: Interaction,
-  options: WebhookOptions,
-) {
-  const editSent = editSentResponse({
-    applicationId: options.applicationId,
-    interactionToken: interaction.token,
-  });
+  editSent: (content: string) => Promise<Response>,
+): Promise<FormData | undefined> => {
+  const UPLOAD_SIZE_LIMIT = 8 * 1024 * 1024;
+
+  interface UploadItem {
+    filename: string;
+    blob: Blob;
+  }
+  const attachmentsToUpload: UploadItem[] = [];
 
   const form = new FormData();
+  for (let index = 0; index < message.attachments.length; ++index) {
+    const attachment = message.attachments[index];
+    const res = await fetch(attachment.url);
+    const blob = await res.blob();
+
+    if (UPLOAD_SIZE_LIMIT < blob.size) {
+      await editSent(
+        "アップロード上限を超えているから、ピン留めできないみたいです…",
+      );
+      return;
+    }
+    attachmentsToUpload.push({ filename: attachment.filename, blob });
+  }
+  for (let index = 0; index < message.embeds.length; ++index) {
+    const embed = message.embeds[index];
+    if (embed.image && embed.image.url) {
+      const { url } = embed.image;
+      const res = await fetch(url);
+      const blob = await res.blob();
+
+      if (UPLOAD_SIZE_LIMIT < blob.size) {
+        await editSent(
+          "アップロード上限を超えているから、ピン留めできないみたいです…",
+        );
+        return;
+      }
+      const filename = `${index.toString(10)}.png`;
+      attachmentsToUpload.push({ filename, blob });
+      embed.image.url = `attachment://${filename}`;
+    }
+  }
   form.append(
     "payload_json",
     JSON.stringify({
@@ -114,33 +147,39 @@ export async function pinMessage(
       message_reference: {
         message_id: message.id,
       },
-      attachments: message.attachments.map((attachment, index) => ({
+      attachments: attachmentsToUpload.map(({ filename }, index) => ({
         id: index,
-        filename: attachment.filename,
+        filename,
       })),
     }),
   );
-  for (let index = 0; index < message.attachments.length; ++index) {
-    const attachment = message.attachments[index];
-    const res = await fetch(attachment.url);
-    const blob = await res.blob();
+  attachmentsToUpload.forEach(({ filename, blob }, index) => {
+    form.append(`files[${index}]`, blob, filename);
+  });
+  return form;
+};
 
-    const UPLOAD_SIZE_LIMIT = 8 * 1024 * 1024;
-    if (UPLOAD_SIZE_LIMIT < blob.size) {
-      await editSent(
-        "アップロード上限を超えているから、ピン留めできないみたいです…",
-      );
-      return;
-    }
-    form.append(`files[${index}]`, blob, attachment.filename);
+export async function pinMessage(
+  message: PartialMessage,
+  interaction: Interaction,
+  options: WebhookOptions,
+) {
+  const editSent = editSentResponse({
+    applicationId: options.applicationId,
+    interactionToken: interaction.token,
+  });
+
+  const form = await makeFormData(message, editSent);
+  if (!form) {
+    return;
   }
+
+  const res = await sendWebhook(form, options);
 
   let previewContent = "";
   if (message.content.length !== 0) {
     previewContent += cutContent(message.content);
   }
-
-  const res = await sendWebhook(form, options);
 
   if (!res || !res.ok) {
     console.error(await res?.text());
