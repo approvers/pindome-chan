@@ -91,7 +91,7 @@ const createCommands = async ({
       throw new Error(`setting commands failed: ${await response.text()}`);
     }
   } catch (error) {
-    console.error(error);
+    console.log(error);
     return new Response("setting commands failed", { status: 502 });
   }
   return new Response("OK");
