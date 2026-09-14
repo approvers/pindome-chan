@@ -29,7 +29,7 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
         return errorResponse("間に合わなかったから");
       }
       const [message] = Object.values(messages);
-      void pinMessage(message, interaction, options);
+      void pinMessage(message, interaction, options).catch(console.error);
 
       return {
         type: InteractionResponseType.DeferredChannelMessageWithSource,

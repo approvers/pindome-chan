@@ -77,7 +77,7 @@ const cutContent = (content: string): string => {
 const makeFormData = async (
   message: PartialMessage,
   editSent: (content: string) => Promise<Response>,
-): Promise<FormData | undefined> => {
+): Promise<FormData> => {
   const UPLOAD_SIZE_LIMIT = 8 * 1024 * 1024;
 
   interface UploadItem {
@@ -94,7 +94,7 @@ const makeFormData = async (
 
     if (UPLOAD_SIZE_LIMIT < blob.size) {
       await editSent("アップロード上限を超えているから、ピン留めできないみたいです…");
-      return;
+      throw new Error("failed to upload by exceeding limit");
     }
     attachmentsToUpload.push({ filename: attachment.filename, blob });
   }
@@ -107,7 +107,7 @@ const makeFormData = async (
 
       if (UPLOAD_SIZE_LIMIT < blob.size) {
         await editSent("アップロード上限を超えているから、ピン留めできないみたいです…");
-        return;
+        throw new Error("failed to upload by exceeding limit");
       }
       const filename = `${index.toString(10)}.png`;
       attachmentsToUpload.push({ filename, blob });
@@ -148,10 +148,6 @@ export async function pinMessage(
   });
 
   const form = await makeFormData(message, editSent);
-  if (!form) {
-    return;
-  }
-
   const res = await sendWebhook(form, options);
 
   let previewContent = "";
@@ -163,7 +159,7 @@ export async function pinMessage(
     console.error(await res?.text());
     const followupRes = await editSent("ピン留めに失敗しちゃった……");
     console.log(await followupRes.text());
-    return;
+    throw new Error("failed to pin message");
   }
   const followupRes = await editSent(`ピン留めできたよ！\n${previewContent}`);
   console.log(await followupRes.text());
