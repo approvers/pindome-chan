@@ -1,8 +1,8 @@
-import { pinMessage, WebhookOptions } from "./commands/pin_message.ts";
+import { pinMessage, type WebhookOptions } from "./commands/pin_message.ts";
 import {
   ApplicationCommandType,
-  Interaction,
-  InteractionHandlers,
+  type Interaction,
+  type InteractionHandlers,
   InteractionResponseType,
   InteractionType,
 } from "./types.ts";

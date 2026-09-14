@@ -1,41 +1,49 @@
+import type { Context, HonoRequest } from "hono";
 import {
-  Interaction,
-  InteractionHandlers,
-  InteractionResponse,
+  type AppEnv,
+  type Interaction,
+  type InteractionHandlers,
+  type InteractionResponse,
   InteractionResponseType,
   InteractionType,
 } from "./types.ts";
 
-import { verifyAsync } from "ed25519";
+import { makeCommands } from "./commands.ts";
 
 const HEX_SEGMENT = /.{1,2}/gu;
 
 const fromHexString = (hexString: string) =>
-  new Uint8Array(
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    hexString.match(HEX_SEGMENT)!.map((byte) => parseInt(byte, 16)),
-  );
+  new Uint8Array(hexString.match(HEX_SEGMENT)!.map((byte) => parseInt(byte, 16)));
 
-const invalidRequestResponse = (): Response =>
-  new Response(null, { status: 401 });
+const invalidRequestResponse = (): Response => new Response(null, { status: 401 });
 
 const verifyRequest = async (
-  request: Request,
+  req: HonoRequest,
   publicKey: string,
 ): Promise<Interaction | undefined> => {
-  const signature = request.headers.get("X-Signature-Ed25519");
-  const timestamp = request.headers.get("X-Signature-Timestamp");
+  const signature = req.header("X-Signature-Ed25519");
+  const timestamp = req.header("X-Signature-Timestamp");
 
   if (!signature || !timestamp) {
     return undefined;
   }
 
-  const body = await request.text();
+  const body = await req.text();
+
+  const publicKeyCrypto = await crypto.subtle.importKey(
+    "raw",
+    fromHexString(publicKey),
+    { name: "Ed25519" },
+    false,
+    ["verify"],
+  );
+
   if (
-    await verifyAsync(
+    await crypto.subtle.verify(
+      { name: "Ed25519" },
+      publicKeyCrypto,
       fromHexString(signature),
       new TextEncoder().encode(timestamp + body),
-      fromHexString(publicKey),
     )
   ) {
     return JSON.parse(body) as Interaction;
@@ -48,20 +56,19 @@ const jsonResponse = (data: InteractionResponse): Response =>
     headers: { "Content-Type": "application/json" },
   });
 
-const makeCommandResponse = async (
-  { interaction, commands }: {
-    interaction: Interaction;
-    commands: InteractionHandlers;
-  },
-): Promise<Response> => {
+const makeCommandResponse = async ({
+  interaction,
+  commands,
+}: {
+  interaction: Interaction;
+  commands: InteractionHandlers;
+}): Promise<Response> => {
   switch (interaction.type) {
     case InteractionType.Ping:
       return jsonResponse({ type: InteractionResponseType.Pong });
 
     case InteractionType.ApplicationCommand: {
-      const found = commands.find(
-        ([command]) => command.name === interaction.data.name,
-      );
+      const found = commands.find(([command]) => command.name === interaction.data.name);
       if (!found) {
         return new Response(null, { status: 400 });
       }
@@ -71,24 +78,25 @@ const makeCommandResponse = async (
   }
 };
 
-export const handleCommand = async ({ req, publicKey, commands }: {
-  req: Deno.RequestEvent;
-  publicKey: string;
-  commands: InteractionHandlers;
-}): Promise<void> => {
-  const interaction = await verifyRequest(req.request, publicKey);
+export const handleCommand = async (c: Context<AppEnv>): Promise<Response> => {
+  const commands = makeCommands({
+    applicationId: c.env.APPLICATION_ID,
+    webhookId: c.env.DISCORD_WEBHOOK_ID,
+    webhookToken: c.env.DISCORD_WEBHOOK_TOKEN,
+  });
+
+  const interaction = await verifyRequest(c.req, c.env.PUBLIC_KEY);
   if (!interaction) {
-    console.info("failed to verify with: ", req.request.headers);
-    await req.respondWith(invalidRequestResponse());
-    return;
+    console.info("failed to verify with: ", c.req.header());
+    return invalidRequestResponse();
   }
 
   console.log(interaction);
   try {
     const response = makeCommandResponse({ interaction, commands });
-    return req.respondWith(response);
+    return response;
   } catch (error) {
     console.error(error);
-    return req.respondWith(invalidRequestResponse());
+    return invalidRequestResponse();
   }
 };

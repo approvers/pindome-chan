@@ -1,0 +1,4 @@
+allowBuilds:
+  ed25519: true
+  esbuild: true
+  workerd: true

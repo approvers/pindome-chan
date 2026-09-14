@@ -105,3 +105,7 @@ dist
 
 # VSCode
 .vscode/
+
+# Cloudflare
+.wrangler/
+worker-configuration.d.ts
