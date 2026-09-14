@@ -87,15 +87,14 @@ const createCommands = async ({
     headers: { "Content-Type": "application/json" },
   });
 
-  const error = new Error("Setting commands failed!");
-
   try {
     const response = await fetch(request, { headers });
     if (!response.ok) {
-      throw error;
+      throw new Error(`setting commands failed: ${await response.text()}`);
     }
   } catch (error) {
-    return new Response((error as Error).message, { status: 502 });
+    console.error(error);
+    return new Response("setting commands failed", { status: 502 });
   }
   return new Response("OK");
 };
