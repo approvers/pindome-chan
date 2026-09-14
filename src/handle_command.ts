@@ -96,7 +96,7 @@ export const handleCommand = async (c: Context<AppEnv>): Promise<Response> => {
     const response = makeCommandResponse({ interaction, commands });
     return response;
   } catch (error) {
-    console.error(error);
+    console.log(error);
     return invalidRequestResponse();
   }
 };

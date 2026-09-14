@@ -141,7 +141,7 @@ export async function pinMessage(
   message: PartialMessage,
   interaction: Interaction,
   options: WebhookOptions,
-) {
+): Promise<string> {
   const editSent = editSentResponse({
     applicationId: options.applicationId,
     interactionToken: interaction.token,
@@ -156,11 +156,9 @@ export async function pinMessage(
   }
 
   if (!res || !res.ok) {
-    console.error(await res?.text());
-    const followupRes = await editSent("ピン留めに失敗しちゃった……");
-    console.log(await followupRes.text());
-    throw new Error("failed to pin message");
+    console.log("failed to pin message");
+    console.log(await res?.text());
+    return "ピン留めに失敗しちゃった……";
   }
-  const followupRes = await editSent(`ピン留めできたよ！\n${previewContent}`);
-  console.log(await followupRes.text());
+  return `ピン留めできたよ！\n${previewContent}`;
 }

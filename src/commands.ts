@@ -3,6 +3,7 @@ import {
   ApplicationCommandType,
   type Interaction,
   type InteractionHandlers,
+  type InteractionResponse,
   InteractionResponseType,
   InteractionType,
 } from "./types.ts";
@@ -20,7 +21,7 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
       type: ApplicationCommandType.Message,
       name: "ピン留め",
     },
-    (interaction: Interaction) => {
+    async (interaction: Interaction): Promise<InteractionResponse> => {
       if (interaction.type !== InteractionType.ApplicationCommand) {
         return errorResponse("コマンドの種類が違うから");
       }
@@ -29,12 +30,12 @@ export const makeCommands = (options: WebhookOptions): InteractionHandlers => [
         return errorResponse("間に合わなかったから");
       }
       const [message] = Object.values(messages);
-      void pinMessage(message, interaction, options).catch(console.error);
+      const content = await pinMessage(message, interaction, options);
 
       return {
-        type: InteractionResponseType.DeferredChannelMessageWithSource,
+        type: InteractionResponseType.ChannelMessageWithSource,
         data: {
-          content: "ピン留め中…",
+          content,
         },
       };
     },
