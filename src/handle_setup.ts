@@ -80,15 +80,13 @@ const createCommands = async ({
   headers: Headers;
 }): Promise<Response> => {
   const url = [ENDPOINT, "applications", applicationId, "guilds", guildId, "commands"].join("/");
-
-  const request = new Request(url, {
-    method: "PUT",
-    body: JSON.stringify(commands),
-    headers: { "Content-Type": "application/json" },
-  });
-
+  headers.append("Content-Type", "application/json");
   try {
-    const response = await fetch(request, { headers });
+    const response = await fetch(url, {
+      headers,
+      method: "PUT",
+      body: JSON.stringify(commands.map(([command]) => command)),
+    });
     if (!response.ok) {
       throw new Error(`setting commands failed: ${await response.text()}`);
     }
