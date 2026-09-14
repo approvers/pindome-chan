@@ -1,12 +1,21 @@
-import { ApplicationCommand, ENDPOINT, InteractionHandlers } from "./types.ts";
+import {
+  type AppEnv,
+  type ApplicationCommand,
+  ENDPOINT,
+  type InteractionHandlers,
+} from "./types.ts";
 
 import { authorizationHeaders } from "./setup/headers.ts";
+import type { Context } from "hono";
+import { makeCommands } from "./commands.ts";
 
 const TOKEN_URL = `${ENDPOINT}/oauth2/token`;
 
-const getAuthorizationCode = async (
-  { basicHeaders }: { basicHeaders: Headers },
-): Promise<string> => {
+const getAuthorizationCode = async ({
+  basicHeaders,
+}: {
+  basicHeaders: Headers;
+}): Promise<string> => {
   const headers = new Headers(basicHeaders);
   headers.set("Content-Type", "application/x-www-form-urlencoded");
 
@@ -31,21 +40,16 @@ const getAuthorizationCode = async (
   }
 };
 
-const deleteExistingCommands = async (
-  { applicationId, guildId, headers }: {
-    applicationId: string;
-    guildId: string;
-    headers: Headers;
-  },
-): Promise<void> => {
-  const url = [
-    ENDPOINT,
-    "applications",
-    applicationId,
-    "guilds",
-    guildId,
-    "commands",
-  ].join("/");
+const deleteExistingCommands = async ({
+  applicationId,
+  guildId,
+  headers,
+}: {
+  applicationId: string;
+  guildId: string;
+  headers: Headers;
+}): Promise<void> => {
+  const url = [ENDPOINT, "applications", applicationId, "guilds", guildId, "commands"].join("/");
   const response = await fetch(url, { headers });
   const commands = (await response.json()) as readonly (ApplicationCommand & {
     id: string;
@@ -64,27 +68,18 @@ const deleteExistingCommands = async (
   );
 };
 
-const createCommands = async (
-  {
-    applicationId,
-    guildId,
-    commands,
-    headers,
-  }: {
-    applicationId: string;
-    guildId: string;
-    commands: InteractionHandlers;
-    headers: Headers;
-  },
-): Promise<Response> => {
-  const url = [
-    ENDPOINT,
-    "applications",
-    applicationId,
-    "guilds",
-    guildId,
-    "commands",
-  ].join("/");
+const createCommands = async ({
+  applicationId,
+  guildId,
+  commands,
+  headers,
+}: {
+  applicationId: string;
+  guildId: string;
+  commands: InteractionHandlers;
+  headers: Headers;
+}): Promise<Response> => {
+  const url = [ENDPOINT, "applications", applicationId, "guilds", guildId, "commands"].join("/");
 
   const request = new Request(url, {
     method: "PUT",
@@ -105,41 +100,39 @@ const createCommands = async (
   return new Response("OK");
 };
 
-export const handleSetup = async (
-  { req, commands, applicationId, applicationSecret, guildId }: {
-    req: Deno.RequestEvent;
-    commands: InteractionHandlers;
-    applicationId: string;
-    applicationSecret: string;
-    guildId: string;
-  },
-): Promise<void> => {
+export const handleSetup = async (c: Context<AppEnv>): Promise<Response> => {
+  const commands = makeCommands({
+    applicationId: c.env.APPLICATION_ID,
+    webhookId: c.env.DISCORD_WEBHOOK_ID,
+    webhookToken: c.env.DISCORD_WEBHOOK_TOKEN,
+  });
+
   console.info("started to setup");
 
   const basicHeaders = authorizationHeaders({
-    username: applicationId,
-    password: applicationSecret,
+    username: c.env.APPLICATION_ID,
+    password: c.env.APPLICATION_SECRET,
   });
   const bearer = await getAuthorizationCode({ basicHeaders });
   const bearerHeaders = authorizationHeaders({ bearer });
 
   try {
     await deleteExistingCommands({
-      applicationId,
-      guildId,
+      applicationId: c.env.APPLICATION_ID,
+      guildId: c.env.GUILD_ID,
       headers: bearerHeaders,
     });
-    const response = await createCommands(
-      { applicationId, guildId, commands, headers: bearerHeaders },
-    );
-    return req.respondWith(response);
+    const response = await createCommands({
+      applicationId: c.env.APPLICATION_ID,
+      guildId: c.env.GUILD_ID,
+      commands,
+      headers: bearerHeaders,
+    });
+    return response;
   } catch {
-    return req.respondWith(
-      new Response(
-        "Failed to authenticate with Discord. " +
-          "Are the Application ID and secret set correctly?",
-        { status: 407 },
-      ),
+    return new Response(
+      "Failed to authenticate with Discord. " + "Are the Application ID and secret set correctly?",
+      { status: 407 },
     );
   }
 };

@@ -1,0 +1,20 @@
+"$schema" = "./node_modules/wrangler/config-schema.json"
+name = "pindome-chan"
+main = "./src/main.ts"
+compatibility_date = "2026-09-14"
+compatibility_flags = ["nodejs_compat_v2"]
+dev.port = 3000
+
+[vars]
+ENVIRONMENT = "development"
+APPLICATION_ID = "716934370044280853"
+PUBLIC_KEY = "7316c17b129c3bfb643f1895986dbce8cc99b80d3a1f46018801242460852960"
+GUILD_ID = "683939861539192860"
+DISCORD_WEBHOOK_ID = "716940489659777075"
+
+[env.production.vars]
+ENVIRONMENT = "production"
+APPLICATION_ID = "716934370044280853"
+PUBLIC_KEY = "7316c17b129c3bfb643f1895986dbce8cc99b80d3a1f46018801242460852960"
+GUILD_ID = "683939861539192860"
+DISCORD_WEBHOOK_ID = "716940489659777075"

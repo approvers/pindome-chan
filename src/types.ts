@@ -1,4 +1,6 @@
-/* eslint-disable camelcase */
+export interface AppEnv {
+  Bindings: Env;
+}
 
 export const ENDPOINT = "https://discord.com/api/v10";
 
@@ -125,25 +127,23 @@ export interface GuildMember {
   };
 }
 
-export type Interaction =
-  & {
-    id: Snowflake;
-    guild_id: Snowflake;
-    channel_id: Snowflake;
-    member: GuildMember;
-    token: string;
-    version: number;
-  }
-  & (
-    | {
+export type Interaction = {
+  id: Snowflake;
+  guild_id: Snowflake;
+  channel_id: Snowflake;
+  member: GuildMember;
+  token: string;
+  version: number;
+} & (
+  | {
       type: InteractionType.Ping;
       data: undefined;
     }
-    | {
+  | {
       type: InteractionType.ApplicationCommand;
       data: ApplicationCommandData;
     }
-  );
+);
 
 export enum InteractionResponseType {
   Pong = 1,
@@ -251,7 +251,4 @@ export type InteractionHandler = (
   interaction: Interaction,
 ) => Promise<InteractionResponse> | InteractionResponse;
 
-export type InteractionHandlers = readonly [
-  ApplicationCommand,
-  InteractionHandler,
-][];
+export type InteractionHandlers = readonly [ApplicationCommand, InteractionHandler][];

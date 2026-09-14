@@ -1,32 +1,20 @@
-import { ENDPOINT, Interaction, PartialMessage } from "../types.ts";
+import { ENDPOINT, type Interaction, type PartialMessage } from "../types.ts";
 
-const editSentResponse = (
-  { applicationId, interactionToken }: {
-    applicationId: string;
-    interactionToken: string;
-  },
-) =>
-(content: string): Promise<Response> =>
-  fetch(
-    [
-      ENDPOINT,
-      "webhooks",
-      applicationId,
-      interactionToken,
-      "messages",
-      "@original",
-    ].join("/"),
-    {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
+const editSentResponse =
+  ({ applicationId, interactionToken }: { applicationId: string; interactionToken: string }) =>
+  (content: string): Promise<Response> =>
+    fetch(
+      [ENDPOINT, "webhooks", applicationId, interactionToken, "messages", "@original"].join("/"),
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content }),
       },
-      body: JSON.stringify({ content }),
-    },
-  );
+    );
 
-const USER_AGENT =
-  "pindome-chan Bot (https://github.com/approvers/pindome-chan)";
+const USER_AGENT = "pindome-chan Bot (https://github.com/approvers/pindome-chan)";
 
 export interface WebhookOptions {
   applicationId: string;
@@ -38,16 +26,13 @@ const sendWebhook = (
   message: FormData,
   { webhookId, webhookToken }: WebhookOptions,
 ): Promise<Response> =>
-  fetch(
-    [ENDPOINT, "webhooks", webhookId, webhookToken].join("/"),
-    {
-      headers: {
-        "User-Agent": USER_AGENT,
-      },
-      method: "POST",
-      body: message,
+  fetch([ENDPOINT, "webhooks", webhookId, webhookToken].join("/"), {
+    headers: {
+      "User-Agent": USER_AGENT,
     },
-  );
+    method: "POST",
+    body: message,
+  });
 
 const cutContent = (content: string): string => {
   const spoilerMarks = [];
@@ -64,10 +49,7 @@ const cutContent = (content: string): string => {
       }
       ++i;
     }
-    if (
-      chars[i] === "`" && chars[i + 1] === "`" && chars[i + 2] === "`" &&
-      chars[i + 3] === "\n"
-    ) {
+    if (chars[i] === "`" && chars[i + 1] === "`" && chars[i + 2] === "`" && chars[i + 3] === "\n") {
       isInCodeBlock = !isInCodeBlock;
       if (isInCodeBlock) {
         spoilerMarks.pop();
@@ -77,8 +59,8 @@ const cutContent = (content: string): string => {
   }
 
   const PREVIEW_LENGTH = 20;
-  const isCuttingSpoiler = spoilerSpans.some(([start, end]) =>
-    start <= PREVIEW_LENGTH && PREVIEW_LENGTH < end
+  const isCuttingSpoiler = spoilerSpans.some(
+    ([start, end]) => start <= PREVIEW_LENGTH && PREVIEW_LENGTH < end,
   );
 
   let cut = "";
@@ -111,9 +93,7 @@ const makeFormData = async (
     const blob = await res.blob();
 
     if (UPLOAD_SIZE_LIMIT < blob.size) {
-      await editSent(
-        "アップロード上限を超えているから、ピン留めできないみたいです…",
-      );
+      await editSent("アップロード上限を超えているから、ピン留めできないみたいです…");
       return;
     }
     attachmentsToUpload.push({ filename: attachment.filename, blob });
@@ -126,9 +106,7 @@ const makeFormData = async (
       const blob = await res.blob();
 
       if (UPLOAD_SIZE_LIMIT < blob.size) {
-        await editSent(
-          "アップロード上限を超えているから、ピン留めできないみたいです…",
-        );
+        await editSent("アップロード上限を超えているから、ピン留めできないみたいです…");
         return;
       }
       const filename = `${index.toString(10)}.png`;

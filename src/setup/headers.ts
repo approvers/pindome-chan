@@ -1,20 +1,16 @@
 export type AuthorizationOptions =
   | {
-    username?: string;
-    password?: string;
-  }
+      username?: string;
+      password?: string;
+    }
   | {
-    bearer: string;
-  };
+      bearer: string;
+    };
 
-export const authorizationHeaders = (
-  options: AuthorizationOptions,
-): Headers => {
+export const authorizationHeaders = (options: AuthorizationOptions): Headers => {
   let authKey;
   if ("username" in options || "password" in options) {
-    const basicAuth = btoa(
-      `${options.username || ""}:${options.password || ""}`,
-    );
+    const basicAuth = btoa(`${options.username || ""}:${options.password || ""}`);
     authKey = `Basic ${basicAuth}`;
   } else if ("bearer" in options) {
     authKey = `Bearer ${options.bearer}`;
